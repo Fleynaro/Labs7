@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <algorithm>
+#define M_PI            3.14159265358979323846
 
 using namespace std;
 
@@ -117,7 +118,7 @@ void LUdecomposition(double** L, double** U, int* P, int& rank, double& sign, in
                 //printMatrix(U, N);
             }
         }
-       //printMatrix(U, N);
+        //printMatrix(U, N);
     }
 }
 
@@ -157,9 +158,6 @@ void SolveSOLE(double** L, double** U, double* X, int* P, double* B, int N) {
     SolveLy(L, vectorY, vectorPB, N);
     //printVector(Y, N);
     SolveUx(U, X, vectorY, N);
-
-    delete[] vectorPB;
-    delete[] vectorY;
 }
 
 void SolveBackwardMatrix(double** L, double** U, double** X, int* P, int N) {
@@ -175,7 +173,7 @@ void SolveBackwardMatrix(double** L, double** U, double** X, int* P, int N) {
             vectorE[i - 1] = 0.0;
         }
         vectorE[i] = 1.0;
-        
+
         //получаем вектор-столбец X
         SolveSOLE(L, U, vectorX, P, vectorE, N);
         //записываем его в матрицу X
@@ -183,8 +181,6 @@ void SolveBackwardMatrix(double** L, double** U, double** X, int* P, int N) {
             X[t][i] = vectorX[t];
         }
     }
-    delete[] vectorE;
-    delete[] vectorX;
 }
 
 //найти определитель
@@ -216,6 +212,113 @@ double computeCubNorm(double** matrix, int N) {
         result = max(result, sum);
     }
     return result;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+//Нахождение максимального элемента в матрице, находящегося не на диагонали
+void searchMaxElemMatrix(double** matrix, const int N, int& imax, int& jmax) {
+    double max = 0.0;
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+            if (i != j && abs(matrix[i][j]) > max)
+            {
+                max = abs(matrix[i][j]);
+                imax = i;
+                jmax = j;
+            }
+        }
+    }
+}
+
+//tan(2*alpha) = 2*a[i][j]/(a[i][i]-a[j][j])
+double getAlpha(double** matrix, int imax, int jmax) {
+    double alpha;
+    if (matrix[imax][imax] - matrix[jmax][jmax] == 0)
+    {
+        alpha = M_PI / 4;
+    }
+    else
+    {
+        alpha = atan(2 * matrix[imax][jmax] / (matrix[imax][imax] - matrix[jmax][jmax])) / 2;
+    }
+    return alpha;
+}
+
+//Является ли матрица диагональной
+bool isMatrixDiagonal(double** matrix, const int N) {
+    double kvSum = 0.0;
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+            if (i != j)
+            {
+                kvSum += matrix[i][j] * matrix[i][j];
+            }
+        }
+    }
+    return kvSum < 2.0;
+}
+
+//Получение диагональной матрицы
+double** getNewDiagonalMatrixByRotation(double** matrix, const int N) {
+    double** rotatedMatrix = nullptr;
+    createMatrix(&rotatedMatrix, N);
+    copyMatrixToMatrix(matrix, rotatedMatrix, N);
+
+    //вспомогательная матрица
+    double** B = nullptr;
+    createMatrix(&B, N);
+
+    while (!isMatrixDiagonal(rotatedMatrix, N)) {
+        printMatrix(rotatedMatrix, N);
+        int imax, jmax;
+        searchMaxElemMatrix(rotatedMatrix, N, imax, jmax);
+        double alpha = getAlpha(rotatedMatrix, imax, jmax);
+        double c = cos(alpha);
+        double s = sin(alpha);
+
+        //результат умножения матрицы A в k-ом состоянии на матрицу вращения справа
+        copyMatrixToMatrix(rotatedMatrix, B, N);
+        for (int m = 0; m < N; m++) {
+            B[m][imax] = c * rotatedMatrix[m][imax] + s * rotatedMatrix[m][jmax];
+            B[m][jmax] = -s * rotatedMatrix[m][imax] + c * rotatedMatrix[m][jmax];
+        }
+
+        //результат умножения матрицы B на матрицу вращения слева
+        for (int m = 0; m < N; m++) {
+            rotatedMatrix[imax][m] = c * B[imax][m] + s * B[jmax][m];
+            rotatedMatrix[jmax][m] = -s * B[imax][m] + c * B[jmax][m];
+        }
+    }
+
+    return rotatedMatrix;
+}
+
+//Получение максимального собственного значения
+double getMaxEigenvalue(double** matrix, const int N) {
+    double max = 0;
+    for (int i = 0; i < N; i++)
+    {
+        if (abs(matrix[i][i]) > max)
+            max = abs(matrix[i][i]);
+    }
+    return max;
+}
+
+//Вычисление евклидовой нормы матрицы
+double computEuclidNorm(double** A, double** trA, const int N) {
+    double** newMatrix = nullptr;
+    createMatrix(&newMatrix, N);
+    fillMatrixAsEmpty(newMatrix, N);
+    matrixMul(trA, A, newMatrix, N);
+    printMatrix(newMatrix, N);
+    newMatrix = getNewDiagonalMatrixByRotation(newMatrix, N);
+    printMatrix(newMatrix, N);
+    double eigenvalue = getMaxEigenvalue(newMatrix, N);
+    return sqrt(eigenvalue);
 }
 
 int main()
@@ -257,7 +360,7 @@ int main()
     printMatrix(A, N);
     printf("Vector B:\n");
     printVector(vectorB, N);
-   
+
     //LU разложение
     int rank = N; //ранг матрицы
     int P[N]; //"матрица" перестановок (на самом деле подстановка)
@@ -295,7 +398,7 @@ int main()
 
     //найти определитель
     auto det = computeDet(U, N, sign);
-    printf("det = %f\n", det);
+    printf("det = %f\n\n", det);
 
     //транспонируем матрицу
     double** trA = nullptr;
@@ -308,15 +411,35 @@ int main()
     copyMatrixToMatrix(backwardMatrix, trBackwardMatrix, N);
     transpose(trBackwardMatrix, N);
 
+
+   /* double sMatrixValues[3][3] = {
+        { 10, 4, 5 },
+        {4, 20, 1},
+        {5, 1, 30}
+    };
+    double** sMatrix = nullptr;
+    createMatrix(&sMatrix, N);
+    fillMatrix<3>(sMatrix, sMatrixValues);
+    printMatrix(sMatrix, N);
+    auto diagonalMatrix = getNewDiagonalMatrixByRotation(sMatrix, N);
+    printMatrix(diagonalMatrix, N);*/
+
     //вычисление норм матриц
     auto cubNorm1 = computeCubNorm(A, N);
     auto cubNorm2 = computeCubNorm(backwardMatrix, N);
     auto octNorm1 = computeCubNorm(trA, N);
     auto octNorm2 = computeCubNorm(trBackwardMatrix, N);
+    ////////////////////////////////////////////////////////
+    double euclidNorm1 = computEuclidNorm(A, trA, N);
+    double euclidNorm2 = computEuclidNorm(backwardMatrix, trBackwardMatrix, N);
+
+    /////////////////////////////////////////////////////////
+
     //вычисление числа обусловленности
     auto cubCond = cubNorm1 * cubNorm2;
     auto octCond = octNorm1 * octNorm2;
-    
-    printf("cubCond = %f, octCond = %f, evkCond = %f\n", cubCond, octCond, 0.0);
-    
+    double euclidCond = euclidNorm1 * euclidNorm2;
+
+    printf("cubCond = %f, octCond = %f, euclidCond = %f\n", cubCond, octCond, euclidCond);
+    return 0;
 }
