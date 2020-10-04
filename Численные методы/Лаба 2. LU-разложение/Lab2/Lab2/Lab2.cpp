@@ -84,6 +84,11 @@ int defineRowIdxWithMainValue(double** matrix, int k, int N) {
 
 //LU разложение
 void LUdecomposition(double** L, double** U, int* P, int& rank, double& sign, int N) {
+    //иницилизируем подстановку P
+    for (int i = 0; i < N; i++) {
+        P[i] = i;
+    }
+
     for (int k = 0; k < N; k++) {
         auto rowIdx = defineRowIdxWithMainValue(U, k, N);
         if (k != rowIdx) {
@@ -92,9 +97,6 @@ void LUdecomposition(double** L, double** U, int* P, int& rank, double& sign, in
             P[k] = rowIdx;
             P[rowIdx] = k;
             sign *= -1.0;
-        }
-        else {
-            P[k] = k;
         }
 
         //главный элемент
@@ -107,10 +109,14 @@ void LUdecomposition(double** L, double** U, int* P, int& rank, double& sign, in
 
         //заполняем матрицу L
         for (int i = k; i < N; i++) {
-            L[i][k] = U[i][k] / mainValue;
+            L[i][k] = U[i][k];
             //printMatrix(L, N);
         }
-
+        
+        for (int j = k; j < N; j++) {
+            U[k][j] /= mainValue;
+        }
+        
         //заполняем матрицу U
         for (int i = k + 1; i < N; i++) {
             for (int j = k; j < N; j++) {
@@ -118,6 +124,7 @@ void LUdecomposition(double** L, double** U, int* P, int& rank, double& sign, in
                 //printMatrix(U, N);
             }
         }
+        
         //printMatrix(U, N);
     }
 }
@@ -126,9 +133,9 @@ void LUdecomposition(double** L, double** U, int* P, int& rank, double& sign, in
 //Решение уравнения Ly = Pb
 void SolveLy(double** triangleMatrix, double* X, double* B, int N) {
     for (int i = 0; i < N; i++) {
-        X[i] = B[i];
+        X[i] = B[i] / triangleMatrix[i][i];
         for (int j = 0; j < i; j++) {
-            X[i] -= X[j] * triangleMatrix[i][j];
+            X[i] -= X[j] * triangleMatrix[i][j] / triangleMatrix[i][i];
         }
     }
 }
@@ -136,9 +143,9 @@ void SolveLy(double** triangleMatrix, double* X, double* B, int N) {
 //Решение уравнения Ux = y
 void SolveUx(double** triangleMatrix, double* X, double* B, int N) {
     for (int i = N - 1; i >= 0; i--) {
-        X[i] = B[i] / triangleMatrix[i][i];
+        X[i] = B[i];
         for (int j = N - 1; j > i; j--) {
-            X[i] -= X[j] * triangleMatrix[i][j] / triangleMatrix[i][i];
+            X[i] -= X[j] * triangleMatrix[i][j];
         }
     }
 }
@@ -154,7 +161,6 @@ void SolveSOLE(double** L, double** U, double* X, int* P, double* B, int N) {
     for (int i = 0; i < N; i++) {
         vectorPB[i] = B[P[i]];
     }
-    //printVector(PB, N);
     SolveLy(L, vectorY, vectorPB, N);
     //printVector(Y, N);
     SolveUx(U, X, vectorY, N);
@@ -184,10 +190,10 @@ void SolveBackwardMatrix(double** L, double** U, double** X, int* P, int N) {
 }
 
 //найти определитель
-double computeDet(double** U, int N, double sign) {
+double computeDet(double** L, int N, double sign) {
     double det = sign;
     for (int t = 0; t < N; t++) {
-        det *= U[t][t];
+        det *= L[t][t];
     }
     return det;
 }
@@ -276,7 +282,7 @@ double** getNewDiagonalMatrixByRotation(double** matrix, const int N) {
     createMatrix(&B, N);
 
     while (!isMatrixDiagonal(rotatedMatrix, N)) {
-        printMatrix(rotatedMatrix, N);
+        //printMatrix(rotatedMatrix, N);
         int imax, jmax;
         searchMaxElemMatrix(rotatedMatrix, N, imax, jmax);
         double alpha = getAlpha(rotatedMatrix, imax, jmax);
@@ -321,31 +327,24 @@ double computEuclidNorm(double** A, double** trA, const int N) {
     createMatrix(&newMatrix, N);
     fillMatrixAsEmpty(newMatrix, N);
     matrixMul(trA, A, newMatrix, N);
-    printMatrix(newMatrix, N);
+    //printMatrix(newMatrix, N);
     newMatrix = getNewDiagonalMatrixByRotation(newMatrix, N);
-    printMatrix(newMatrix, N);
+    //printMatrix(newMatrix, N);
     double eigenvalue = getMaxEigenvalue(newMatrix, N);
     return sqrt(eigenvalue);
 }
 
 int main()
 {
-    /*const int N = 4;
-    double values[N][N] = {
-        { 2.0, 3.0, 4.0, 5.0 },
-        { 2.0, 3.0, 4.0, 6.0 },
-        { 2.0, 3.0, 4.0, 7.0 },
-        { 2.0, 3.0, 4.0, 8.0 }
-    };*/
-
-    const int N = 3;
+    const int N = 4;
     double matrixValues[N][N] = {
-        { 10, -7, 0 },
-        {-3, 6, 2},
-        {5, -1, 5}
+        { 0.1, -8.3, 7.1, 5.5},
+        { 1.2, 5.2, -9.1, -0.2},
+        {-7.9, 9.6, 0.9, -1.2},
+        {3.8, -4.7, -0.2, 7.9}
     };
     double vectorB[N] = {
-        1, 2, 3
+        26.8, -16.5, 9.2, 25.4
     };
 
     //Матрица A
@@ -363,7 +362,7 @@ int main()
     createMatrix(&L, N);
     fillMatrixAsEmpty(L, N);
 
-    printf("Matrix A:\n");
+    printf("1) Input\nMatrix A:\n");
     printMatrix(A, N);
     printf("Vector B:\n");
     printVector(vectorB, N);
@@ -374,25 +373,26 @@ int main()
     double sign = 1.0;
     LUdecomposition(L, U, P, rank, sign, N);
 
+    printf("\n2) LU decomposition\nRank = %i\n", rank);
+
     printf("Matrix L:\n");
     printMatrix(L, N);
     printf("Matrix U:\n");
     printMatrix(U, N);
-    printf("\n\nRank = %i\n", rank);
 
-
-    double** C = nullptr;
-    createMatrix(&C, N);
-    fillMatrixAsEmpty(C, N);
-    matrixMul(L, U, C, N);
-    printf("Matrix LU:\n");
-    printMatrix(C, N);
+    //LU матрица
+    double** LU = nullptr;
+    createMatrix(&LU, N);
+    fillMatrixAsEmpty(LU, N);
+    matrixMul(L, U, LU, N);
+    printf("Matrix LU (check to see LU = PA):\n");
+    printMatrix(LU, N);
 
 
     //решаем СЛАУ
     double vectorX[N];
     SolveSOLE(L, U, vectorX, P, vectorB, N);
-    printf("Vector X:\n");
+    printf("\n3) SOLE\nVector X:\n");
     printVector(vectorX, N);
 
 
@@ -400,12 +400,12 @@ int main()
     double** backwardMatrix = nullptr;
     createMatrix(&backwardMatrix, N);
     SolveBackwardMatrix(L, U, backwardMatrix, P, N);
-    printf("Backward matrix:\n");
+    printf("\n4) Other:\nBackward matrix:\n");
     printMatrix(backwardMatrix, N);
 
     //найти определитель
-    auto det = computeDet(U, N, sign);
-    printf("det = %f\n\n", det);
+    auto det = computeDet(L, N, sign);
+    printf("det(A) = %f\n", det);
 
     //транспонируем матрицу
     double** trA = nullptr;
@@ -434,6 +434,6 @@ int main()
     auto octCond = octNorm1 * octNorm2;
     double euclidCond = euclidNorm1 * euclidNorm2;
 
-    printf("cubCond = %f, octCond = %f, euclidCond = %f\n", cubCond, octCond, euclidCond);
+    printf("cubCond(A) = %f\noctCond(A) = %f\neuclidCond(A) = %f\n", cubCond, octCond, euclidCond);
     return 0;
 }
