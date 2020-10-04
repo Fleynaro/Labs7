@@ -259,11 +259,14 @@ bool isMatrixDiagonal(double** matrix, const int N) {
             }
         }
     }
-    return kvSum < 2.0;
+    return kvSum < minValue * minValue;
 }
 
 //Получение диагональной матрицы
 double** getNewDiagonalMatrixByRotation(double** matrix, const int N) {
+    double* vectorI = new double[N];
+    double* vectorJ = new double[N];
+    
     double** rotatedMatrix = nullptr;
     createMatrix(&rotatedMatrix, N);
     copyMatrixToMatrix(matrix, rotatedMatrix, N);
@@ -289,9 +292,13 @@ double** getNewDiagonalMatrixByRotation(double** matrix, const int N) {
 
         //результат умножения матрицы B на матрицу вращения слева
         for (int m = 0; m < N; m++) {
-            rotatedMatrix[imax][m] = c * B[imax][m] + s * B[jmax][m];
-            rotatedMatrix[jmax][m] = -s * B[imax][m] + c * B[jmax][m];
+            vectorI[m] = c * B[imax][m] + s * B[jmax][m];
+            vectorJ[m] = -s * B[imax][m] + c * B[jmax][m];
         }
+
+        swap(B[imax], vectorI);
+        swap(B[jmax], vectorJ);
+        copyMatrixToMatrix(B, rotatedMatrix, N);
     }
 
     return rotatedMatrix;
@@ -410,20 +417,7 @@ int main()
     createMatrix(&trBackwardMatrix, N);
     copyMatrixToMatrix(backwardMatrix, trBackwardMatrix, N);
     transpose(trBackwardMatrix, N);
-
-
-   /* double sMatrixValues[3][3] = {
-        { 10, 4, 5 },
-        {4, 20, 1},
-        {5, 1, 30}
-    };
-    double** sMatrix = nullptr;
-    createMatrix(&sMatrix, N);
-    fillMatrix<3>(sMatrix, sMatrixValues);
-    printMatrix(sMatrix, N);
-    auto diagonalMatrix = getNewDiagonalMatrixByRotation(sMatrix, N);
-    printMatrix(diagonalMatrix, N);*/
-
+    
     //вычисление норм матриц
     auto cubNorm1 = computeCubNorm(A, N);
     auto cubNorm2 = computeCubNorm(backwardMatrix, N);
