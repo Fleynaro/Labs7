@@ -1,2 +1,5 @@
 ﻿  Lab2.cpp
+D:\Labs7\Численные методы\Лаба 2. LU-разложение\Lab2\Lab2\Lab2.cpp(426,12): warning C4129: 'A': unrecognized character escape sequence
+D:\Labs7\Численные методы\Лаба 2. LU-разложение\Lab2\Lab2\Lab2.cpp(436,39): warning C4474: 'printf' : too many arguments passed for format string
+D:\Labs7\Численные методы\Лаба 2. LU-разложение\Lab2\Lab2\Lab2.cpp(436,39): message : placeholders and their parameters expect 0 variadic arguments, but 1 were provided
   Lab2.vcxproj -> D:\Labs7\Численные методы\Лаба 2. LU-разложение\Lab2\x64\Debug\Lab2.exe

@@ -3,8 +3,29 @@
 #define M_PI            3.14159265358979323846
 
 using namespace std;
-
 const double minValue = 0.00001;
+
+//распечатка вектора
+void printVector(double* vector, int N, bool expFormat = false) {
+    printf(" ");
+    for (int i = 0; i < N; i++) {
+        if (expFormat) {
+            printf("%.10e ", vector[i]);
+        }
+        else {
+            printf("%.7f ", vector[i]);
+        }
+    }
+    printf("\n");
+}
+
+//распечатка матрицы
+void printMatrix(double** matrix, int N, bool expFormat = false) {
+    for (int i = 0; i < N; i++) {
+        printVector(matrix[i], N, expFormat);
+    }
+    printf("\n");
+}
 
 //создаем в памяти матрицу
 void createMatrix(double*** pMatrix, int N) {
@@ -34,6 +55,14 @@ void fillMatrixAsEmpty(double** matrix, int N) {
     }
 }
 
+//заполняем матрицу как единичную
+void fillMatrixAsE(double** matrix, int N) {
+    fillMatrixAsEmpty(matrix, N);
+    for (int i = 0; i < N; i++) {
+        matrix[i][i] = 1.0;
+    }
+}
+
 //копируем значения одной матрицы в другую
 void copyMatrixToMatrix(double** srcMatrix, double** dstMatrix, int N) {
     for (int i = 0; i < N; i++) {
@@ -43,24 +72,15 @@ void copyMatrixToMatrix(double** srcMatrix, double** dstMatrix, int N) {
     }
 }
 
-//распечатка вектора
-void printVector(double* vector, int N) {
-    printf("| ");
-    for (int i = 0; i < N; i++) {
-        printf("%.2f ", vector[i]);
-    }
-    printf("|\n");
+//умножение матрицы на вектор
+void matrixMulVec(double** A, double* B, double* C, int N)
+{
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            C[i] += A[i][j] * B[j];
 }
 
-//распечатка матрицы
-void printMatrix(double** matrix, int N) {
-    for (int i = 0; i < N; i++) {
-        printVector(matrix[i], N);
-    }
-    printf("\n");
-}
-
-//умножение матрицы
+//умножение матрицы на матрицу
 void matrixMul(double** A, double** B, double** C, int N)
 {
     for (int i = 0; i < N; i++)
@@ -69,14 +89,39 @@ void matrixMul(double** A, double** B, double** C, int N)
                 C[i][j] += A[i][k] * B[k][j];
 }
 
+//вычитание матрицы
+void matrixSub(double** A, double** B, double** C, int N)
+{
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            C[i][j] = A[i][j] - B[i][j];
+}
+
+//получение матрицы PA
+double** matrixPA(double** A, int* P, int N)
+{
+    double** PA = new double* [N];
+    for (int i = 0; i < N; i++) {
+        PA[i] = A[P[i]];
+    }
+    return PA;
+}
+
+//вычитание векторов
+void vectorSub(double* A, double* B, double* C, int N)
+{
+    for (int i = 0; i < N; i++)
+        C[i] = A[i] - B[i];
+}
+
 //определить строку с главным элементом (который максимален в текущем столбце)
 int defineRowIdxWithMainValue(double** matrix, int k, int N) {
     int m = k;
-    double maxValue = matrix[m][k];
-    for (int i = k + 1; i < N; i++) {
-        if (matrix[i][k] > maxValue) {
+    double maxValue = 0.0;
+    for (int i = k; i < N; i++) {
+        if (abs(matrix[i][k]) > maxValue) {
             m = i;
-            maxValue = matrix[m][k];
+            maxValue = abs(matrix[m][k]);
         }
     }
     return m;
@@ -89,19 +134,24 @@ void LUdecomposition(double** L, double** U, int* P, int& rank, double& sign, in
         P[i] = i;
     }
 
+    printf("U = A:\n");
+    printMatrix(U, N);
+    printf("L:\n");
+    printMatrix(L, N);
+
     for (int k = 0; k < N; k++) {
         auto rowIdx = defineRowIdxWithMainValue(U, k, N);
         if (k != rowIdx) {
             //Смена строк
             swap(U[k], U[rowIdx]);
-            P[k] = rowIdx;
-            P[rowIdx] = k;
+            swap(L[k], L[rowIdx]);
+            swap(P[k], P[rowIdx]);
             sign *= -1.0;
         }
 
         //главный элемент
         double mainValue = U[k][k];
-        if (mainValue < minValue) {
+        if (abs(mainValue) < minValue) {
             //Определяем ранг матрицы
             rank = k;
             return;
@@ -125,7 +175,10 @@ void LUdecomposition(double** L, double** U, int* P, int& rank, double& sign, in
             }
         }
         
-        //printMatrix(U, N);
+        printf("\nk = %i\nm = %i\nU[m][k] = %.7f\nU:\n", k, rowIdx, mainValue);
+        printMatrix(U, N);
+        printf("L:\n");
+        printMatrix(L, N);
     }
 }
 
@@ -346,6 +399,14 @@ int main()
     double vectorB[N] = {
         26.8, -16.5, 9.2, 25.4
     };
+    double vectorX_[N] = {
+        1.0, 2.0, 3.0, 4.0
+    };
+
+    //единичная матрица
+    double** E = nullptr;
+    createMatrix(&E, N);
+    fillMatrixAsE(E, N);
 
     //Матрица A
     double** A = nullptr;
@@ -362,32 +423,42 @@ int main()
     createMatrix(&L, N);
     fillMatrixAsEmpty(L, N);
 
-    printf("1) Input\nMatrix A:\n");
+    printf("1) Input\A:\n");
     printMatrix(A, N);
-    printf("Vector B:\n");
+    printf("B:\n");
     printVector(vectorB, N);
 
     //LU разложение
     int rank = N; //ранг матрицы
     int P[N]; //"матрица" перестановок (на самом деле подстановка)
     double sign = 1.0;
+
+    printf("\n2) LU decomposition\n", rank);
     LUdecomposition(L, U, P, rank, sign, N);
 
-    printf("\n2) LU decomposition\nRank = %i\n", rank);
+    printf("\nRank = %i\n", rank);
+    if (rank != N)
+        return 0;
 
-    printf("Matrix L:\n");
-    printMatrix(L, N);
-    printf("Matrix U:\n");
-    printMatrix(U, N);
-
+    auto PA = matrixPA(A, P, N);
     //LU матрица
     double** LU = nullptr;
     createMatrix(&LU, N);
     fillMatrixAsEmpty(LU, N);
     matrixMul(L, U, LU, N);
-    printf("Matrix LU (check to see LU = PA):\n");
-    printMatrix(LU, N);
-
+    if (false) { //show PA/LU
+        printf("Matrix PA:\n");
+        printMatrix(PA, N);
+        printf("Matrix LU (check to see LU = PA):\n");
+        printMatrix(LU, N);
+    }
+    
+    //LU - PA
+    printf("\nLU-PA:\n");
+    double** LUminusPA = nullptr;
+    createMatrix(&LUminusPA, N);
+    matrixSub(LU, PA, LUminusPA, N);
+    printMatrix(LUminusPA, N, true);
 
     //решаем СЛАУ
     double vectorX[N];
@@ -396,16 +467,45 @@ int main()
     printVector(vectorX, N);
 
 
+    //вектор невязки
+    double vectorX2[N];
+    double vectorR[N];
+    for (int i = 0; i < N; i++) vectorX2[i] = 0;
+    matrixMulVec(A, vectorX, vectorX2, N);
+    vectorSub(vectorX2, vectorB, vectorR, N);
+    printf("\nAx - b = \n");
+    printVector(vectorR, N, true);
+
+    //погрешность решения
+    double vectorDelta[N];
+    vectorSub(vectorX_, vectorX, vectorDelta, N);
+    printf("X* - X = \n");
+    printVector(vectorDelta, N, true);
+
+
     //находим обратную матрицу
     double** backwardMatrix = nullptr;
     createMatrix(&backwardMatrix, N);
     SolveBackwardMatrix(L, U, backwardMatrix, P, N);
-    printf("\n4) Other:\nBackward matrix:\n");
+    printf("\n4) Other:\nA^-1:\n");
     printMatrix(backwardMatrix, N);
+
+    //A * A^-1
+    double** AA = nullptr;
+    createMatrix(&AA, N);
+    fillMatrixAsEmpty(AA, N);
+    matrixMul(A, backwardMatrix, AA, N);
+    printf("\nA * A^-1:\n");
+    printMatrix(AA, N, true);
+    double** AAminusE = nullptr;
+    createMatrix(&AAminusE, N);
+    matrixSub(AA, E, AAminusE, N);
+    printf("(A * A^-1) - E:\n");
+    printMatrix(AAminusE, N, true);
 
     //найти определитель
     auto det = computeDet(L, N, sign);
-    printf("det(A) = %f\n", det);
+    printf("\ndet(A) = %f\n", det);
 
     //транспонируем матрицу
     double** trA = nullptr;
