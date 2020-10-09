@@ -1,0 +1,8 @@
+C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\bin\Debug\ControlsLab1.dll
+C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\bin\Debug\ControlsLab1.pdb
+C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\obj\Debug\ControlsLab1.csprojAssemblyReference.cache
+C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\obj\Debug\ControlsLab1.MyComponent.resources
+C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\obj\Debug\ControlsLab1.csproj.GenerateResource.cache
+C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\obj\Debug\ControlsLab1.csproj.CoreCompileInputs.cache
+C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\obj\Debug\ControlsLab1.dll
+C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\obj\Debug\ControlsLab1.pdb

@@ -1,0 +1,13 @@
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\bin\Debug\Forms.exe.config
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\bin\Debug\Forms.exe
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\bin\Debug\Forms.pdb
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\bin\Debug\ControlsLab1.dll
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\bin\Debug\ControlsLab1.pdb
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.csprojAssemblyReference.cache
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.Form1.resources
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.Properties.Resources.resources
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.csproj.GenerateResource.cache
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.csproj.CoreCompileInputs.cache
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.csproj.CopyComplete
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.exe
+C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.pdb
