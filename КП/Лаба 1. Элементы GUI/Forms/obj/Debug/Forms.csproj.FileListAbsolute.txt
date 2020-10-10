@@ -11,3 +11,18 @@ C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.csproj.CoreCom
 C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.csproj.CopyComplete
 C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.exe
 C:\Users\Fleynaro\source\repos\ControlsLab1\Forms\obj\Debug\Forms.pdb
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\bin\Debug\Forms.exe.config
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\bin\Debug\Forms.exe
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\bin\Debug\Forms.pdb
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\bin\Debug\ControlsLab1.dll
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\bin\Debug\ControlsLab1.pdb
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\obj\Debug\Forms.csprojAssemblyReference.cache
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\obj\Debug\Forms.Form1.resources
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\obj\Debug\Forms.Properties.Resources.resources
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\obj\Debug\Forms.csproj.GenerateResource.cache
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\obj\Debug\Forms.csproj.CoreCompileInputs.cache
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\obj\Debug\Forms.csproj.CopyComplete
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\obj\Debug\Forms.exe
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\obj\Debug\Forms.pdb
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\bin\Debug\MathNet.Numerics.dll
+D:\Labs7\КП\Лаба 1. Элементы GUI\Forms\bin\Debug\MathNet.Numerics.xml

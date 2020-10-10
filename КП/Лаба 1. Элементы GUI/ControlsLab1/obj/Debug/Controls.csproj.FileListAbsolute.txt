@@ -6,3 +6,14 @@ C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\obj\Debug\ControlsLab1.
 C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\obj\Debug\ControlsLab1.pdb
 C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\obj\Debug\Controls.csprojAssemblyReference.cache
 C:\Users\Fleynaro\source\repos\ControlsLab1\ControlsLab1\obj\Debug\ControlsLab1.ColorSelector.resources
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\bin\Debug\ControlsLab1.dll
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\bin\Debug\ControlsLab1.pdb
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\bin\Debug\MathNet.Numerics.dll
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\bin\Debug\MathNet.Numerics.xml
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\Controls.csprojAssemblyReference.cache
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\ControlsLab1.ColorSelector.resources
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\Controls.csproj.GenerateResource.cache
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\Controls.csproj.CoreCompileInputs.cache
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\Controls.csproj.CopyComplete
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\ControlsLab1.dll
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\ControlsLab1.pdb
