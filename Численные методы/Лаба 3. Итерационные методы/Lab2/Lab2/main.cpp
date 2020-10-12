@@ -7,6 +7,7 @@
 
 using namespace std;
 const double minValue = 0.00001;
+const double eps = 0.0001;
 
 //распечатка вектора
 void printVector(double* vector, int N, bool expFormat = false) {
@@ -488,7 +489,7 @@ double calcQ(double* X, double* prevX, double* tempVector, double* prevDelta, in
 }
 
 //считаем оценку погрешности
-double getError(double* X, double* prevX, double* tempVector, double q, int N)
+double calcError(double* X, double* prevX, double* tempVector, double q, int N)
 {
     vectorSub(X, prevX, tempVector, N);
     return vectorNorm(tempVector, N) * (1 - q) / q;
@@ -524,20 +525,20 @@ void SimpleIterationMethod(double** A, double normA, double* B, double* X, int N
         auto q = calcQ(X, prevX, tempVector, &prevDelta, N);
 
         //погрешность
-        auto err = getError(X, prevX, tempVector, q, N);
+        auto err = calcError(X, prevX, tempVector, q, N);
 
         //вывод
         printIterStep(itr++, tau, q, normR, err, X, N);
         copyVectorToVector(X, prevX, N);
-    } while (normR > 0.0001);
+    } while (normR > eps);
 }
 
 //метод наискорейшего спуска
 void FastDescentMethod(double** A, double* B, double* X, int N)
 {
     auto prevX = new double[N];
+    auto vectorR = new double[N];
     auto tempVector = new double[N];
-    auto tempVector2 = new double[N];
     int itr = 1;
     double normR = 0;
     auto prevDelta = 1.0;
@@ -546,15 +547,15 @@ void FastDescentMethod(double** A, double* B, double* X, int N)
     printIterHeader();
     do {
         //R = Ax
-        matrixMulVec(A, prevX, tempVector, N);
+        matrixMulVec(A, prevX, vectorR, N);
         //R = b - Ax
-        vectorSub(B, tempVector, tempVector, N);
+        vectorSub(B, vectorR, vectorR, N);
         //Ar
-        matrixMulVec(A, tempVector, tempVector2, N);
+        matrixMulVec(A, vectorR, tempVector, N);
         //tau = <r, r> / <Ar, r>
-        double tau = vectorMul(tempVector, tempVector, N) / vectorMul(tempVector2, tempVector, N);
+        double tau = vectorMul(vectorR, vectorR, N) / vectorMul(tempVector, vectorR, N);
         //(b - Ax) * tau
-        vectorMulScalar(tempVector, tau, tempVector, N);
+        vectorMulScalar(vectorR, tau, tempVector, N);
         //x(k+1) = x(k) + (b - Ax) * tau
         vectorAdd(prevX, tempVector, X, N);
 
@@ -566,12 +567,108 @@ void FastDescentMethod(double** A, double* B, double* X, int N)
         auto q = calcQ(X, prevX, tempVector, &prevDelta, N);
 
         //погрешность
-        auto err = getError(X, prevX, tempVector, q, N);
+        auto err = calcError(X, prevX, tempVector, q, N);
 
         //вывод
         printIterStep(itr++, tau, q, normR, err, X, N);
         copyVectorToVector(X, prevX, N);
-    } while (normR > 0.0001);
+    } while (normR > eps);
+}
+
+//считаем alpha
+double calcAlpha(double tau, double prevTau, double prevAlpha, double R2, double prevR2)
+{
+    return 1.0 / (1.0 - R2 * tau / (prevR2 * prevTau * prevAlpha));
+}
+
+//метод сопряженных градиентов
+void ConjugateGradientMethod(double** A, double* B, double* X, int N)
+{
+    auto prevPrevX = new double[N];
+    auto prevX = new double[N];
+    auto vectorR = new double[N];
+    auto tempVector = new double[N];
+    int itr = 1;
+    double normR = 0;
+    auto prevAlpha = 1.0;
+    auto prevDelta = 1.0;
+    auto prevR2 = 0.0;
+    auto prevTau = 0.0;
+    vectorClear(prevX, N);
+    for (int i = 0; i < N; i++) prevPrevX[i] = 1.0;
+
+    printIterHeader();
+    do {
+        //R = Ax
+        matrixMulVec(A, prevX, vectorR, N);
+        //R = b - Ax
+        vectorSub(B, vectorR, vectorR, N);
+        //Ar
+        matrixMulVec(A, vectorR, tempVector, N);
+        //tau = <r, r> / <Ar, r>
+        double R2 = vectorMul(vectorR, vectorR, N);
+        double tau = R2 / vectorMul(tempVector, vectorR, N);
+
+        auto alpha = (itr == 1) ? 1.0 : calcAlpha(tau, prevTau, prevAlpha, R2, prevR2);
+        prevR2 = R2;
+        prevAlpha = alpha;
+        prevTau = tau;
+
+        //alpha * x(k)
+        vectorMulScalar(prevX, alpha, X, N);
+        //(1 - alpha) * x(k - 1)
+        vectorMulScalar(prevPrevX, 1 - alpha, tempVector, N);
+        vectorAdd(X, tempVector, X, N);
+        //alpha * tau * R
+        vectorMulScalar(vectorR, alpha * tau, tempVector, N);
+        vectorAdd(X, tempVector, X, N);
+
+
+        //норма невязки
+        normR = calcVectorRNorm(A, B, X, prevX, tempVector, N);
+
+        //оценка нормы матрицы перехода q
+        auto q = calcQ(X, prevX, tempVector, &prevDelta, N);
+
+        //погрешность
+        auto err = calcError(X, prevX, tempVector, q, N);
+
+        //вывод
+        printIterStep(itr++, tau, q, normR, err, X, N, true, alpha);
+        copyVectorToVector(prevX, prevPrevX, N);
+        copyVectorToVector(X, prevX, N);
+    } while (normR > eps);
+}
+
+void initSomeStuff(double** A, double* vectorB, double* vectorX, double** backwardMatrix, int N)
+{
+    //Матрица U
+    double** U = nullptr;
+    createMatrix(&U, N);
+    copyMatrixToMatrix(A, U, N);
+
+    //Матрица L
+    double** L = nullptr;
+    createMatrix(&L, N);
+    fillMatrixAsEmpty(L, N);
+
+    printf("1) Input\A:\n");
+    printMatrix(A, N);
+    printf("B:\n");
+    printVector(vectorB, N);
+
+    //LU разложение
+    int rank = N; //ранг матрицы
+    int* P = new int[N]; //"матрица" перестановок (на самом деле подстановка)
+    double sign = 1.0;
+
+    LUdecomposition(L, U, P, rank, sign, N);
+
+    if (rank != N)
+        throw std::exception();
+
+    SolveSOLE(L, U, vectorX, P, vectorB, N);
+    SolveBackwardMatrix(L, U, backwardMatrix, P, N);
 }
 
 int main()
@@ -583,25 +680,70 @@ int main()
     double* B = nullptr;
     int N;
     readInputData("in2.txt", &A, &B, &N);
-    auto X = new double[N];
+    auto X_LU = new double[N];
+    auto X_Method1 = new double[N];
+    auto X_Method2 = new double[N];
+    auto X_Method3 = new double[N];
+    auto X_Method4 = new double[N];
+
+    //обратная матрица
+    double** backwardMatrix = nullptr;
+    createMatrix(&backwardMatrix, N);
+
+    //LU, ...
+    initSomeStuff(A, B, X_LU, backwardMatrix, N);
 
     //транспонируем матрицу
     double** trA = nullptr;
     createMatrix(&trA, N);
     copyMatrixToMatrix(A, trA, N);
     transpose(trA, N);
+    double** trBackA = nullptr;
+    createMatrix(&trBackA, N);
+    copyMatrixToMatrix(backwardMatrix, trBackA, N);
+    transpose(trBackA, N);
 
     printf("Variant=\nb\n");
     printVector(B, N);
     printf("A\n");
     printMatrix(A, N);
     double euclidNorm = computEuclidNorm(A, trA, N);
+    double euclidNorm2 = computEuclidNorm(backwardMatrix, trBackA, N);
     printf("Норма матрицы=%f\n", euclidNorm);
 
     printf("Метод простой итерации\n");
-    SimpleIterationMethod(A, euclidNorm, B, X, N);
+    SimpleIterationMethod(A, euclidNorm, B, X_Method1, N);
 
     printf("\nМетод наискорейшего спуска\n");
-    FastDescentMethod(A, B, X, N);
+    FastDescentMethod(A, B, X_Method2, N);
+
+    //ПВР...
+
+    printf("\nМетод сопряженных градиентов\n");
+    ConjugateGradientMethod(A, B, X_Method4, N);
+
+    auto condA = euclidNorm * euclidNorm2;
+    cout << "\nЧисло обусловленности " << condA << endl;
+    cout << "\nТеоретическая оценка чиcла итераций ";
+    cout << "\nМетод простых итераций " << (long)(log(1 / eps) / 2 * condA);
+    cout << "\nМетод наискорейшего спуска " << (long)(log(1 / eps) * condA);
+    cout << "\nМетод ПВР " << (long)(log(1 / eps) / 4 * sqrt(condA));
+    cout << "\nМетод сопряженных градиентов " << (long)(log(2 / eps) / 2 * sqrt(condA));
+
+    auto tempVector = new double[N];
+    cout << "\n\nСравнение с LU разложением\n";
+    printVector(X_LU, 0);
+    cout << "\nРазница между LU разложением и методом простых итераций\n";
+    vectorSub(X_LU, X_Method1, tempVector, N);
+    printVector(tempVector, N, true);
+    cout << "\nРазница между LU разложением и методом наискорейшего спуска\n";
+    vectorSub(X_LU, X_Method2, tempVector, N);
+    printVector(tempVector, N, true);
+    cout << "\nРазница между LU разложением и методом ПВР\n";
+    vectorSub(X_LU, X_Method3, tempVector, N);
+    printVector(tempVector, N, true);
+    cout << "\nРазница между LU разложением и методом сопряженных градиентов\n";
+    vectorSub(X_LU, X_Method4, tempVector, N);
+    printVector(tempVector, N, true);
     return 0;
 }
