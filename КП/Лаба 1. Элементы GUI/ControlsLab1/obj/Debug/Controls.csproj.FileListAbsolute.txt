@@ -21,3 +21,4 @@ D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\ControlsLa
 D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\ControlsLab1_MarkupCompile.lref
 D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\ClockWPF.baml
 D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\ControlsLab1.g.resources
+D:\Labs7\КП\Лаба 1. Элементы GUI\ControlsLab1\obj\Debug\Controls.csprojAssemblyReference.cache

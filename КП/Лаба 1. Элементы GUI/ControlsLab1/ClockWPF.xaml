@@ -14,17 +14,17 @@
                 <Ellipse Fill="LightGray" Width="170" Height="170" Stroke="Black" StrokeThickness="2" StrokeDashArray="1 3.4"  Canvas.Left="15" Canvas.Top="15"></Ellipse>
                 <Ellipse Fill="LightGray" Width="170" Height="170" Stroke="Black" StrokeThickness="20" StrokeDashArray="0.1 1.864" Canvas.Left="15" Canvas.Top="15"></Ellipse>
 
-                <Rectangle Name="HourHand" Fill="Black" Width="6" Height="35" Canvas.Left="99" Canvas.Top="69" RadiusY="1.178" RadiusX="3.178" RenderTransformOrigin="0.5,0.9" >
+                <Rectangle Name="HourHand" Fill="Black" Width="6" Height="35" Canvas.Left="99.5" Canvas.Top="67" RadiusY="1.178" RadiusX="3.178" RenderTransformOrigin="0.5,0.9" />
+
+                <Rectangle Name="MinHand" Fill="Black" Width="5" Height="55" Canvas.Left="99.5" Canvas.Top="48" RadiusY="1.178" RadiusX="3.178" RenderTransformOrigin="0.5,0.9" >
 
                 </Rectangle>
 
-                <Rectangle Name="MinHand" Fill="Black" Width="5" Height="55" Canvas.Left="99" Canvas.Top="49" RadiusY="1.178" RadiusX="3.178" RenderTransformOrigin="0.5,0.9" >
+                <Rectangle Name="SecHand" Fill="Black" Width="3" Height="75" Canvas.Left="99.5" Canvas.Top="27" RadiusY="1.178" RadiusX="3.178" RenderTransformOrigin="0.5,0.99" >
 
                 </Rectangle>
 
-                <Rectangle Name="SecHand" Fill="Black" Width="3" Height="75" Canvas.Left="99.5" Canvas.Top="29" RadiusY="1.178" RadiusX="3.178" RenderTransformOrigin="0.5,0.9" >
-
-                </Rectangle>
+                <Ellipse Fill="Black" Width="15" Height="15" Canvas.Left="95" Canvas.Top="92"></Ellipse>
             </Canvas>
         </Viewbox>
     </Grid>

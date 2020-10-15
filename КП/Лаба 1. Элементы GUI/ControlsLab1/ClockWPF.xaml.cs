@@ -21,12 +21,13 @@ namespace ControlsLab1
     /// </summary>
     public partial class ClockWPF : UserControl
     {
-        private DispatcherTimer timer = new DispatcherTimer();
-
+        public int TimeZone = 0;
         public System.Drawing.Color BorderColor
         {
             set { ClockBorder.Fill = new SolidColorBrush(Color.FromArgb(value.A, value.R, value.G, value.B)); }
         }
+
+        private DispatcherTimer timer = new DispatcherTimer();
 
         public ClockWPF()
         {
@@ -34,6 +35,7 @@ namespace ControlsLab1
             timer.Interval = new TimeSpan(0, 0, 1);
             timer.Tick += OnUpdate;
             timer.Start();
+            Update();
         }
 
         protected DateTime GetDateTime()
@@ -41,12 +43,17 @@ namespace ControlsLab1
             return DateTime.Now;
         }
 
-        public void OnUpdate(object sender, object e)
+        private void OnUpdate(object sender, object e)
+        {
+            Update();
+        }
+
+        public void Update()
         {
             var time = GetDateTime();
-            var secHandAngle = time.Second * 6.0 + time.Millisecond / 1000.0 * 6.0;
+            var secHandAngle = time.Second * 6.0;
             var minHandAngle = time.Minute * 6.0 + secHandAngle / 60.0;
-            var hourHandAngle = 30.0 * (time.Hour % 12) + minHandAngle / 12.0;
+            var hourHandAngle = 30.0 * ((time.Hour + TimeZone) % 12) + minHandAngle / 12.0;
             SecHand.RenderTransform = new RotateTransform(secHandAngle);
             MinHand.RenderTransform = new RotateTransform(minHandAngle);
             HourHand.RenderTransform = new RotateTransform(hourHandAngle);
