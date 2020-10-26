@@ -1,3 +1,3 @@
 ﻿  ChisMetLab2.cpp
-D:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\ChisMetLab2\ChisMetLab2.cpp(602,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  ChisMetLab2.vcxproj -> D:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\ChisMetLab2\x64\Debug\ChisMetLab2.exe
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\ChisMetLab2\ChisMetLab2.cpp(602,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  ChisMetLab2.vcxproj -> R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\ChisMetLab2\x64\Debug\ChisMetLab2.exe

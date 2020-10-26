@@ -1,4 +1,13 @@
-﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(491,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (Lab2.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+﻿R:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(467,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (Lab2.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   main.cpp
-D:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\main.cpp(655,12): warning C4129: 'A': unrecognized character escape sequence
-  Lab2.vcxproj -> D:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\x64\Debug\Lab3.exe
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\main.cpp(688,29): warning C4244: 'initializing': conversion from 'double' to 'size_t', possible loss of data
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\main.cpp(689,34): warning C4244: 'initializing': conversion from 'double' to 'size_t', possible loss of data
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\main.cpp(693,24): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\main.cpp(701,41): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\main.cpp(704,61): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\main.cpp(708,62): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\main.cpp(711,59): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\main.cpp(714,57): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\main.cpp(717,38): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\main.cpp(735,12): warning C4129: 'A': unrecognized character escape sequence
+  Lab2.vcxproj -> R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\x64\Debug\Lab3.exe

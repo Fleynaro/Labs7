@@ -640,6 +640,86 @@ void ConjugateGradientMethod(double** A, double* B, double* X, int N)
     } while (normR > eps);
 }
 
+int SOR(double** A, double* B, double* X, double omega, double N, double eps, bool printSteps);
+double findBestOmega(double** A, double* B, int N) {
+    auto X = new double[N];
+    double omega = 0.1;
+    double bestOmega = 0.1;
+    int minItr = INT_MAX;
+    while (omega < 2.0) {
+        auto itr = SOR(A, B, X, omega, N, 0.01, false);
+        if (itr < minItr)
+        {
+            minItr = itr;
+            bestOmega = omega;
+        }
+        printf("w = %3.1f\tItr = %d\n", omega, itr);
+        omega += 0.1;
+    }
+
+    printf("w* = %3.1f\tItrMin = %d\n", bestOmega, minItr);
+    return bestOmega;
+}
+
+void SOR_calcVectorX(double** matrixA, double* vectorXNext, double* vectorX, double* vectorB, int N, double omega)
+{
+    for (int i = 0; i < N; i++)
+    {
+        double sumOne = 0;
+        double sumTwo = 0;
+
+        for (int j = 0; j < i; j++)
+        {
+            sumOne += matrixA[i][j] * vectorXNext[j];
+        }
+        for (int j = i + 1; j < N; j++)
+        {
+            sumTwo += matrixA[i][j] * vectorX[j];
+        }
+
+        double xWave = (vectorB[i] - sumOne - sumTwo) / matrixA[i][i];
+        vectorXNext[i] = vectorX[i] + omega * (xWave - vectorX[i]);
+    }
+}
+
+//метод ПВР
+int SOR(double** A, double* B, double* X, double omega, double N, double eps, bool printSteps = true)
+{
+    auto prevX = new double[N];
+    auto tempVector = new double[N];
+    int itr = 1;
+    double normR = 0;
+    auto prevDelta = 1.0;
+    vectorClear(prevX, N);
+
+    if (printSteps) {
+        printIterHeader();
+    }
+
+    do {
+        //расчитываем текущий вектор X
+        SOR_calcVectorX(A, X, prevX, B, N, omega);
+
+        //норма невязки
+        normR = calcVectorRNorm(A, B, X, prevX, tempVector, N);
+
+        if (printSteps) {
+            //оценка нормы матрицы перехода q
+            auto q = calcQ(X, prevX, tempVector, &prevDelta, N);
+
+            //погрешность
+            auto err = calcError(X, prevX, tempVector, q, N);
+
+            //вывод
+            printIterStep(itr, omega, q, normR, err, X, N);
+        }
+        itr++;
+        copyVectorToVector(X, prevX, N);
+    } while (normR > eps);
+
+    return itr;
+}
+
 void initSomeStuff(double** A, double* vectorB, double* vectorX, double** backwardMatrix, int N)
 {
     //Матрица U
@@ -717,7 +797,11 @@ int main()
     printf("\nМетод наискорейшего спуска\n");
     FastDescentMethod(A, B, X_Method2, N);
 
-    //ПВР...
+    printf("\nМетод ПВР - выбор оптимального w\n");
+    auto bestOmega = findBestOmega(A, B, N);
+
+    printf("\nМетод ПВР\n");
+    SOR(A, B, X_Method3, bestOmega, N, eps);
 
     printf("\nМетод сопряженных градиентов\n");
     ConjugateGradientMethod(A, B, X_Method4, N);

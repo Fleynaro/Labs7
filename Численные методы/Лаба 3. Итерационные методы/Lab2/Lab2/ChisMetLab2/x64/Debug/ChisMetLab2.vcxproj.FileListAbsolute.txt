@@ -1,2 +1,4 @@
 D:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\ChisMetLab2\x64\Debug\ChisMetLab2.exe
 D:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\ChisMetLab2\x64\Debug\ChisMetLab2.pdb
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\ChisMetLab2\x64\Debug\ChisMetLab2.exe
+R:\Labs7\Численные методы\Лаба 3. Итерационные методы\Lab2\Lab2\ChisMetLab2\x64\Debug\ChisMetLab2.pdb
