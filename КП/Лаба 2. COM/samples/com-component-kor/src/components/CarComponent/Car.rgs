@@ -1,0 +1,26 @@
+HKCR
+{
+	CarComponent.Car.1 = s 'Car class'
+	{
+		CLSID = s '{c779aa99-9945-40b6-b144-26b1cfe0a12c}'
+	}
+	CarComponent.Car = s 'Car class'
+	{		
+		CurVer = s 'CarComponent.Car.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {c779aa99-9945-40b6-b144-26b1cfe0a12c} = s 'Car class'
+		{
+			ProgID = s 'CarComponent.Car.1'
+			VersionIndependentProgID = s 'CarComponent.Car'
+			ForceRemove Programmable
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			TypeLib = s '{09b937df-9d93-4edb-9677-35ac8800d588}'
+			Version = s '1.0'
+		}
+	}
+}

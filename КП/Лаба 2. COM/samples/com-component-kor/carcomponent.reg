@@ -1,0 +1,21 @@
+REGEDIT
+HKEY_CLASSES_ROOT\CarComponent.Car\CLSID = {c779aa99-9945-40b6-b144-26b1cfe0a12c}
+
+HKEY_CLASSES_ROOT\CLSID\{c779aa99-9945-40b6-b144-26b1cfe0a12c} = CarComponent.Car
+HKEY_CLASSES_ROOT\CLSID\{c779aa99-9945-40b6-b144-26b1cfe0a12c}\InprocServer32 = C:\Projects\ComComponent\Debug\CarComponent.dll
+HKEY_CLASSES_ROOT\CLSID\{c779aa99-9945-40b6-b144-26b1cfe0a12c}\TypeLib = {09b937df-9d93-4edb-9677-35ac8800d588}
+
+HKEY_CLASSES_ROOT\TypeLib\{09b937df-9d93-4edb-9677-35ac8800d588}\1.0 = CarComponentLib
+HKEY_CLASSES_ROOT\TypeLib\{09b937df-9d93-4edb-9677-35ac8800d588}\1.0\Flags = 0
+HKEY_CLASSES_ROOT\TypeLib\{09b937df-9d93-4edb-9677-35ac8800d588}\1.0\0\win32 = C:\Projects\ComComponent\Debug\CarComponent.dll
+HKEY_CLASSES_ROOT\TypeLib\{09b937df-9d93-4edb-9677-35ac8800d588}\1.0\0\win64 = C:\Projects\ComComponent\Debug\CarComponent.dll
+
+# For x64 OSes
+HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Classes\CLSID\{c779aa99-9945-40b6-b144-26b1cfe0a12c} = CarComponent.Car
+HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Classes\CLSID\{c779aa99-9945-40b6-b144-26b1cfe0a12c}\InprocServer32 = C:\Projects\ComComponent\Debug\CarComponent.dll
+HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Classes\CLSID\{c779aa99-9945-40b6-b144-26b1cfe0a12c}\TypeLib = {09b937df-9d93-4edb-9677-35ac8800d588}
+
+HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Classes\TypeLib\{09b937df-9d93-4edb-9677-35ac8800d588}\1.0 = CarComponentLib
+HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Classes\TypeLib\{09b937df-9d93-4edb-9677-35ac8800d588}\1.0\Flags = 0
+HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Classes\TypeLib\{09b937df-9d93-4edb-9677-35ac8800d588}\1.0\0\win32 = C:\Projects\ComComponent\Debug\CarComponent.dll
+HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Classes\TypeLib\{09b937df-9d93-4edb-9677-35ac8800d588}\1.0\0\win64 = C:\Projects\ComComponent\Debug\CarComponent.dll
