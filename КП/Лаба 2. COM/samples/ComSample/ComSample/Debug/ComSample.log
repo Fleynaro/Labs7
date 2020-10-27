@@ -3,9 +3,8 @@
   CoCarClassFactory.cpp
   iid.cpp
   Generating Code...
-  LINK : R:\Labs7\КП\Лаба 2. COM\samples\ComSample\Debug\ComSample.dll not found or not built by the last incremental link; performing full link
 carinprocserver.def : warning LNK4222: exported symbol 'DllGetClassObject' should not be assigned an ordinal
 carinprocserver.def : warning LNK4222: exported symbol 'DllCanUnloadNow' should not be assigned an ordinal
-     Creating library R:\Labs7\КП\Лаба 2. COM\samples\ComSample\Debug\ComSample.lib and object R:\Labs7\КП\Лаба 2. COM\samples\ComSample\Debug\ComSample.exp
-ComSample.exp : warning LNK4070: /OUT:CARINPROCSERVER.dll directive in .EXP differs from output filename 'R:\Labs7\КП\Лаба 2. COM\samples\ComSample\Debug\ComSample.dll'; ignoring directive
-  ComSample.vcxproj -> R:\Labs7\КП\Лаба 2. COM\samples\ComSample\Debug\ComSample.dll
+     Creating library D:\Labs7\КП\Лаба 2. COM\samples\ComSample\Debug\ComSample.lib and object D:\Labs7\КП\Лаба 2. COM\samples\ComSample\Debug\ComSample.exp
+ComSample.exp : warning LNK4070: /OUT:CARINPROCSERVER.dll directive in .EXP differs from output filename 'D:\Labs7\КП\Лаба 2. COM\samples\ComSample\Debug\ComSample.dll'; ignoring directive
+  ComSample.vcxproj -> D:\Labs7\КП\Лаба 2. COM\samples\ComSample\Debug\ComSample.dll
