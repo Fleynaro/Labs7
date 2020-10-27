@@ -1,15 +1,19 @@
 #include "CoCar.h"
 
+extern DWORD g_objCount;
+
 // Конструктор и деструктор СоСаr
 
 CoCar::CoCar()
 	: m_refCount(0), m_currSpeed(0), m_maxSpeed(0)
 {
 	m_petName = SysAllocString(L"Default Pet Name");
+	g_objCount++;
 }
 
 CoCar::~CoCar()
 {
+	--g_objCount;
 	if (m_petName)
 		SysFreeString(m_petName);
 	MessageBox(NULL, "CoCar is dead", "Destructor", MB_OK |

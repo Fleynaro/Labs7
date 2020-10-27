@@ -24,6 +24,9 @@
     <ClInclude Include="CoCar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CoCarClassFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="iid.cpp">
@@ -32,5 +35,16 @@
     <ClCompile Include="CoCar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CarlnProcServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CoCarClassFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="carinprocserver.def">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
