@@ -75,6 +75,8 @@ STDMETHODIMP_(HRESULT __stdcall) CoCarClassFactory::CreateInstance(LPUNKNOWN pUn
 
 	pCarObj = new CoCar;
 
+	MessageBox(NULL, "CreateInstance", "QI", MB_OK |
+		MB_SETFOREGROUND);
 	hr = pCarObj->QueryInterface(riid, ppv);
 
 	if (FAILED(hr))

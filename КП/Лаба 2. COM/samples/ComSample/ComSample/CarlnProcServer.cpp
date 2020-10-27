@@ -14,6 +14,8 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, void** ppv)
 
 	pCFact = new CoCarClassFactory;
 
+	MessageBox(NULL, "DllGetClassObject", "QI", MB_OK |
+		MB_SETFOREGROUND);
 	hr = pCFact->QueryInterface(riid, ppv);
 
 	if (FAILED(hr))

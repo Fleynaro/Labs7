@@ -1,0 +1,7 @@
+R:\Labs7\КП\Лаба 2. COM\samples\ComSample\ComDotNetClient\bin\Debug\ComDotNetClient.exe.config
+R:\Labs7\КП\Лаба 2. COM\samples\ComSample\ComDotNetClient\bin\Debug\ComDotNetClient.exe
+R:\Labs7\КП\Лаба 2. COM\samples\ComSample\ComDotNetClient\bin\Debug\ComDotNetClient.pdb
+R:\Labs7\КП\Лаба 2. COM\samples\ComSample\ComDotNetClient\obj\Debug\ComDotNetClient.csprojAssemblyReference.cache
+R:\Labs7\КП\Лаба 2. COM\samples\ComSample\ComDotNetClient\obj\Debug\ComDotNetClient.csproj.CoreCompileInputs.cache
+R:\Labs7\КП\Лаба 2. COM\samples\ComSample\ComDotNetClient\obj\Debug\ComDotNetClient.exe
+R:\Labs7\КП\Лаба 2. COM\samples\ComSample\ComDotNetClient\obj\Debug\ComDotNetClient.pdb

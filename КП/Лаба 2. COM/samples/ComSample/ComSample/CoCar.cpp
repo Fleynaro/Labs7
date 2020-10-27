@@ -21,8 +21,11 @@ CoCar::~CoCar()
 }
 
 // IUnknown
-
+#include <string>
 STDMETHODIMP_(HRESULT __stdcall) CoCar::QueryInterface(REFIID riid, void** pIFace) {
+	/*MessageBox(NULL, (std::string("QueryInterface = ") + std::to_string(riid.Data1)).c_str(), "QI", MB_OK |
+		MB_SETFOREGROUND);*/
+	
 	// Which aspect of me do they want?
 	if (riid == IID_IUnknown)
 	{
