@@ -1,0 +1,9 @@
+﻿  CarInProcServer.cpp
+  CoCar.cpp
+  CoCarClassFactory.cpp
+  iid.cpp
+  Generating Code...
+carinprocserver.def : warning LNK4222: exported symbol 'DllGetClassObject' should not be assigned an ordinal
+carinprocserver.def : warning LNK4222: exported symbol 'DllCanUnloadNow' should not be assigned an ordinal
+     Creating library D:\Labs7\КП\Лаба 2. COM\samples\Slava\COMLAB\Debug\ComLab.lib and object D:\Labs7\КП\Лаба 2. COM\samples\Slava\COMLAB\Debug\ComLab.exp
+  COMLAB.vcxproj -> D:\Labs7\КП\Лаба 2. COM\samples\Slava\COMLAB\Debug\ComLab.dll

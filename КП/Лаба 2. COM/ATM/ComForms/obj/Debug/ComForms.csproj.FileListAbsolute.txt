@@ -1,0 +1,10 @@
+D:\Labs7\КП\Лаба 2. COM\ATM\ComForms\bin\Debug\ComForms.exe.config
+D:\Labs7\КП\Лаба 2. COM\ATM\ComForms\bin\Debug\ComForms.exe
+D:\Labs7\КП\Лаба 2. COM\ATM\ComForms\bin\Debug\ComForms.pdb
+D:\Labs7\КП\Лаба 2. COM\ATM\ComForms\obj\Debug\ComForms.csprojAssemblyReference.cache
+D:\Labs7\КП\Лаба 2. COM\ATM\ComForms\obj\Debug\ComForms.Form1.resources
+D:\Labs7\КП\Лаба 2. COM\ATM\ComForms\obj\Debug\ComForms.Properties.Resources.resources
+D:\Labs7\КП\Лаба 2. COM\ATM\ComForms\obj\Debug\ComForms.csproj.GenerateResource.cache
+D:\Labs7\КП\Лаба 2. COM\ATM\ComForms\obj\Debug\ComForms.csproj.CoreCompileInputs.cache
+D:\Labs7\КП\Лаба 2. COM\ATM\ComForms\obj\Debug\ComForms.exe
+D:\Labs7\КП\Лаба 2. COM\ATM\ComForms\obj\Debug\ComForms.pdb

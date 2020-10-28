@@ -1,0 +1,8 @@
+﻿  AtmlnProcServer.cpp
+  CoAtm.cpp
+  CoAtmClassFactory.cpp
+  iid.cpp
+  Generating Code...
+  LINK : D:\Labs7\КП\Лаба 2. COM\ATM\Debug\ATM.dll not found or not built by the last incremental link; performing full link
+     Creating library D:\Labs7\КП\Лаба 2. COM\ATM\Debug\ATM.lib and object D:\Labs7\КП\Лаба 2. COM\ATM\Debug\ATM.exp
+  ComSample.vcxproj -> D:\Labs7\КП\Лаба 2. COM\ATM\Debug\ATM.dll
