@@ -144,3 +144,9 @@ STDMETHODIMP_(HRESULT __stdcall) CoAtm::SetMoney(int money)
 	m_money = money;
 	return S_OK;
 }
+
+STDMETHODIMP CoAtm::GetMoney(int* money)
+{
+	*money = m_money;
+	return S_OK;
+}

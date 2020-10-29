@@ -136,4 +136,8 @@ public:
 	//	}
 	//};
 
+
+	// Inherited via IBalance
+	STDMETHODIMP GetMoney(int* money) override;
+
 };

@@ -33,5 +33,6 @@ namespace ComForms
         void PayMoney(int accountId, int money);
         void WithdrawMoney(int accountId, int money);
         void GetBalance(int accountId, ref int balance);
+        void GetMoney(ref int money);
     }
 }

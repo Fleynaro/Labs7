@@ -20,6 +20,8 @@ namespace ComForms
             ICreateAtm crAtm = (ICreateAtm)atm;
             crAtm.SetLocationAddr("г. Пермь, ул. Культуры, д. 10");
             crAtm.SetMoney(1000);
+
+            numericUpDown1.Maximum = 1000000;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -39,8 +41,16 @@ namespace ComForms
 
             if (radioButton2.Checked)
             {
-                balance.WithdrawMoney(0, (int)numericUpDown1.Value);
-                MessageBox.Show("Деньги успешно сняты с карты!");
+                int money = 0;
+                balance.GetMoney(ref money);
+                if ((int)numericUpDown1.Value < money)
+                {
+                    balance.WithdrawMoney(0, (int)numericUpDown1.Value);
+                    MessageBox.Show("Деньги успешно сняты с карты!");
+                } else
+                {
+                    MessageBox.Show("Error: нет столько денег в банкомате.");
+                }
             }
 
             numericUpDown1.Value = 0;

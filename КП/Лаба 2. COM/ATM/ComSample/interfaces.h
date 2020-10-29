@@ -18,6 +18,8 @@ DECLARE_INTERFACE_(IBalance, IUnknown)
 	STDMETHOD(PayMoney)(int accountId, int money) PURE;
 	STDMETHOD(WithdrawMoney)(int accountId, int money) PURE;
 	STDMETHOD(GetBalance)(int accountId, int* balance) PURE;
+	STDMETHOD(GetMoney)(int* money) PURE;
+
 };
 
 //ICreateAtm используется для присвоения адреса банкомату и установке начального кол-ва средств
