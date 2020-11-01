@@ -128,10 +128,10 @@ double** matrixPA(double** A, int* P, int N)
 }
 
 //сложение векторов
-void vectorAdd(double* A, double* B, double* C, int N)
+void vectorAdd(double* A, double* B, double* C, int N, double alpha = 1.0)
 {
     for (int i = 0; i < N; i++)
-        C[i] = A[i] + B[i];
+        C[i] = A[i] + B[i] * alpha;
 }
 
 //вычитание векторов
@@ -195,11 +195,6 @@ void LUdecomposition(double** L, double** U, int* P, int& rank, double& sign, in
         P[i] = i;
     }
 
-    printf("U = A:\n");
-    printMatrix(U, N);
-    printf("L:\n");
-    printMatrix(L, N);
-
     for (int k = 0; k < N; k++) {
         auto rowIdx = defineRowIdxWithMainValue(U, k, N);
         if (k != rowIdx) {
@@ -223,11 +218,11 @@ void LUdecomposition(double** L, double** U, int* P, int& rank, double& sign, in
             L[i][k] = U[i][k];
             //printMatrix(L, N);
         }
-        
+
         for (int j = k; j < N; j++) {
             U[k][j] /= mainValue;
         }
-        
+
         //заполняем матрицу U
         for (int i = k + 1; i < N; i++) {
             for (int j = k; j < N; j++) {
@@ -235,11 +230,6 @@ void LUdecomposition(double** L, double** U, int* P, int& rank, double& sign, in
                 //printMatrix(U, N);
             }
         }
-        
-        printf("\nk = %i\nm = %i\nU[m][k] = %.7f\nU:\n", k, rowIdx, mainValue);
-        printMatrix(U, N);
-        printf("L:\n");
-        printMatrix(L, N);
     }
 }
 
@@ -358,14 +348,14 @@ bool isMatrixDiagonal(double** matrix, const int N) {
             }
         }
     }
-    return kvSum < minValue * minValue;
+    return kvSum < minValue* minValue;
 }
 
 //Получение диагональной матрицы
 double** getNewDiagonalMatrixByRotation(double** matrix, const int N) {
     double* vectorI = new double[N];
     double* vectorJ = new double[N];
-    
+
     double** rotatedMatrix = nullptr;
     createMatrix(&rotatedMatrix, N);
     copyMatrixToMatrix(matrix, rotatedMatrix, N);
@@ -455,7 +445,7 @@ void printIterHeader(bool isJnorm = true)
 {
     cout << setw(7) << "Itr" << "|" << setw(12) << "x" << "|" << setw(12) << "y" << "|" << setw(20) << "Норма невязки" << "|" << setw(20) << "F1" << "|";
     cout << setw(20) << "F2" << "|" << setw(20);
-    if(isJnorm)
+    if (isJnorm)
         cout << "Норма якобиана";
     cout << "|\n";
 }
@@ -468,8 +458,29 @@ void printIterStep(int itr, double x, double y, double Rnorm, double F1, double 
     cout << setw(20) << setprecision(15) << Rnorm << "|";
     cout << setw(20) << setprecision(15) << F1 << "|";
     cout << setw(20) << setprecision(15) << F2 << "|";
-    if(isJnorm)
+    if (isJnorm)
         cout << setw(20) << setprecision(15) << Jnorm << "|";
+    cout << endl;
+}
+
+void printIterHeader2()
+{
+    cout << setw(7) << "Itr" << "|" << setw(12) << "x" << "|" << setw(12) << "y" << "|" << setw(12) << "alpha" << "|" << setw(20) << "Норма невязки" << "|" << setw(20) << "F1" << "|";
+    cout << setw(20) << "F2" << "|" << setw(20);
+    cout << "FF" << "|" << setw(12) << "k\n";
+}
+
+void printIterStep2(int itr, double x, double y, double alpha, double Rnorm, double F1, double F2, double FF, int k)
+{
+    cout << setw(7) << itr << "|";
+    cout << setw(12) << setprecision(7) << fixed << x << "|";
+    cout << setw(12) << setprecision(7) << fixed << y << "|";
+    cout << setw(12) << setprecision(7) << fixed << alpha << "|";
+    cout << setw(20) << setprecision(15) << Rnorm << "|";
+    cout << setw(20) << setprecision(15) << F1 << "|";
+    cout << setw(20) << setprecision(15) << F2 << "|";
+    cout << setw(20) << setprecision(15) << FF << "|";
+    cout << setw(12) << setprecision(7) << fixed << k;
     cout << endl;
 }
 
@@ -522,6 +533,129 @@ void SimpleIterationMethod(double** calcJ, double** trCalcJ, double* vectorX, Fu
     } while (error > eps);
 }
 
+//заполнение матрицы производных
+void calculateDFMatrix(double** matrix, double* vectorX, FuncType Derivative[2][2])
+{
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 2; j++)
+        {
+            matrix[i][j] = Derivative[i][j](vectorX);
+        }
+    }
+}
+
+//Метод Ньютона
+void NewtonsMethod(double* vectorX, FuncType F[2], FuncType Derivative[2][2])
+{
+    int itr = 1;
+    double* tempVector = new double[2];
+    double* vectorF = new double[2];
+    double** DFMatrix = nullptr;
+    createMatrix(&DFMatrix, 2);
+    double* vectorDelta = new double[2];
+    double error = 0;
+    printIterHeader(false);
+
+    for (int i = 0; i < 2; i++) {
+        vectorF[i] = F[i](vectorX);
+    }
+
+    //Матрица U
+    double** U = nullptr;
+    createMatrix(&U, 2);
+    //Матрица L
+    double** L = nullptr;
+    createMatrix(&L, 2);
+
+    do
+    {
+        //вычисляем матрицу производных в точке
+        calculateDFMatrix(DFMatrix, vectorX, Derivative);
+
+        //решаем СЛАУ методом LU-разложения
+        fillMatrixAsEmpty(L, 2);
+        copyMatrixToMatrix(DFMatrix, U, 2);
+        int rank = 2; //ранг матрицы
+        int P[2]; //"матрица" перестановок (на самом деле подстановка)
+        double sign = 1.0;
+        LUdecomposition(L, U, P, rank, sign, 2);
+        if (rank != 2)
+            throw std::exception();
+
+        for (int i = 0; i < 2; i++) {
+            tempVector[i] = -vectorF[i];
+        }
+        double vectorDeltaX[2];
+        SolveSOLE(L, U, vectorDeltaX, P, tempVector, 2);
+        //получили дельта вектор, откуда надо вычленить след. приближение
+        vectorAdd(vectorDeltaX, vectorX, tempVector, 2);
+        copyVectorToVector(tempVector, vectorX, 2);
+
+        for (int i = 0; i < 2; i++) {
+            vectorF[i] = F[i](vectorX);
+        }
+
+        //Норма невязки
+        double Rnorm = vectorEuNorm(vectorF, 2);
+        //дельта
+        error = vectorNorm(vectorDeltaX, 2);
+
+        printIterStep(itr, vectorX[0], vectorX[1], Rnorm, vectorF[0], vectorF[1], 0, false);
+        itr++;
+    } while (error > eps);
+}
+
+void GradientDescentMethod(double* vectorX, FuncType F[2], FuncType Der[2], FuncType OptF)
+{
+    int itr = 1;
+    auto prevVectorX = new double[2]{ 0, 0 };
+    double* tempVector = new double[2];
+    double* vectorDer = new double[2];
+    auto vectorF = new double[2];
+    double alpha = 1.0;
+    double lamda = 0.5;
+    double error = 0.0;
+    printIterHeader2();
+    
+    for (int i = 0; i < 2; i++) {
+        vectorDer[i] = Der[i](vectorX);
+    }
+
+    do {
+        int k = 0;
+        double alphaK = alpha;
+        double Fvalue = OptF(vectorX);
+        double newFvalue = 0;
+        do {
+            //пытаемся обнаружить место, где значение функции меньше, чем в текущем положении (если мы перепрыгнули например минимум)
+            vectorAdd(vectorX, vectorDer, tempVector, 2, -alphaK);
+            alphaK *= lamda;
+            k++;
+            newFvalue = OptF(tempVector);
+        } while (newFvalue >= Fvalue);
+
+        copyVectorToVector(tempVector, vectorX, 2);
+        for (int i = 0; i < 2; i++) {
+            vectorDer[i] = Der[i](vectorX);
+        }
+        for (int i = 0; i < 2; i++) {
+            vectorF[i] = F[i](vectorX);
+        }
+
+        //норма невязки
+        auto Rnorm = vectorEuNorm(vectorF, 2);
+
+        //вычисление погрешности
+        vectorSub(vectorX, prevVectorX, tempVector, 2);
+        error = vectorNorm(tempVector, 2);
+
+        printIterStep2(itr, vectorX[0], vectorX[1], alphaK, Rnorm, vectorF[0], vectorF[1], OptF(vectorX), k);
+        copyVectorToVector(vectorX, prevVectorX, 2);
+        itr++;
+    } while (error > eps);
+}
+
 int main()
 {
     system("chcp 1251");
@@ -536,11 +670,12 @@ int main()
             return cos(vectorX[0] - 2) + vectorX[1];
         }
     };
-    
-    double* vectorX = new double[2]{ -0.1, 0.5 };
+
+    double* vectorX0 = new double[2]{ -0.1, 0.5 };
+    double* vectorX = new double[2];
 
     printf("Вариант №15\n\n");
-    printf("x0 = %.3f y0 = %.3f\n\n", vectorX[0], vectorX[1]);
+    printf("x0 = %.3f y0 = %.3f\n\n", vectorX0[0], vectorX0[1]);
 
 
 
@@ -597,10 +732,63 @@ int main()
 
     double euclidNorm = computEuclidNorm(calcJacobian, trCalcJacobian, 2);
     printf("Norma = %.5f\n", euclidNorm);
+    copyVectorToVector(vectorX0, vectorX, 2);
     //метод простой итерации
     SimpleIterationMethod(calcJacobian, trCalcJacobian, vectorX, F, Fi, Jacobian);
 
+    printf("\n\nМетод Ньютона\n\n");
+    printf("Матрица производных\n");
+    printf("1.0\t-cos(y+0.5)\n");
+    printf("-sin(x-2)\t1.0\n\n");
+
+    //матрица производных
+    FuncType Derivative[2][2] = {
+        {
+            [](double* vectorX) {
+                return 1.0;
+            },
+            [](double* vectorX) {
+                return -cos(vectorX[1] + 0.5);
+            }
+        },
+
+        {
+            [](double* vectorX) {
+                return -sin(vectorX[0] - 2.0);
+            },
+
+            [](double* vectorX) {
+                return 1.0;
+            }
+        }
+    };
 
 
+    copyVectorToVector(vectorX0, vectorX, 2);
+    //Метод Ньютона
+    NewtonsMethod(vectorX, F, Derivative);
+
+    printf("\n\nМетод градиентного спуска\n");
+    printf("Вектор - градиент:\n");
+
+
+    //целевая функция для поиска минимума
+    FuncType optF = [&](double* vectorX) {
+        return pow(F[0](vectorX), 2) + pow(F[1](vectorX), 2);
+    };
+    
+    //вычисление производной суммы квадратов компонент вектора-функции F
+    FuncType Der[2] = {
+        [&](double* vectorX) {
+            return F[0](vectorX) * Derivative[0][0](vectorX) + F[1](vectorX) * Derivative[1][0](vectorX);
+        },
+        [&](double* vectorX) {
+            return F[0](vectorX) * Derivative[0][1](vectorX) + F[1](vectorX) * Derivative[1][1](vectorX);
+        }
+    };
+
+    copyVectorToVector(vectorX0, vectorX, 2);
+    //метод градиентного спуска
+    GradientDescentMethod(vectorX, F, Der, optF);
     return 0;
 }
