@@ -1,0 +1,13 @@
+R:\Labs7\КП\ExtModule\ExtModule\bin\Debug\ExtModule.exe.config
+R:\Labs7\КП\ExtModule\ExtModule\bin\Debug\ExtModule.exe
+R:\Labs7\КП\ExtModule\ExtModule\bin\Debug\ExtModule.pdb
+R:\Labs7\КП\ExtModule\ExtModule\bin\Debug\PluginInterface.dll
+R:\Labs7\КП\ExtModule\ExtModule\bin\Debug\PluginInterface.pdb
+R:\Labs7\КП\ExtModule\ExtModule\obj\Debug\MainApp.csprojAssemblyReference.cache
+R:\Labs7\КП\ExtModule\ExtModule\obj\Debug\ExtModule.Form1.resources
+R:\Labs7\КП\ExtModule\ExtModule\obj\Debug\ExtModule.Properties.Resources.resources
+R:\Labs7\КП\ExtModule\ExtModule\obj\Debug\MainApp.csproj.GenerateResource.cache
+R:\Labs7\КП\ExtModule\ExtModule\obj\Debug\MainApp.csproj.CoreCompileInputs.cache
+R:\Labs7\КП\ExtModule\ExtModule\obj\Debug\MainApp.csproj.CopyComplete
+R:\Labs7\КП\ExtModule\ExtModule\obj\Debug\ExtModule.exe
+R:\Labs7\КП\ExtModule\ExtModule\obj\Debug\ExtModule.pdb

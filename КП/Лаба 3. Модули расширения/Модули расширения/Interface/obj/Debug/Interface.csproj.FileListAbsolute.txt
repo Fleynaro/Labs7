@@ -1,0 +1,26 @@
+F:\Study\CompProg\Reflection\Interface\obj\Debug\Interface.csproj.CoreCompileInputs.cache
+F:\Study\CompProg\Reflection\Interface\bin\Debug\Interface.exe.config
+F:\Study\CompProg\Reflection\Interface\bin\Debug\Interface.exe
+F:\Study\CompProg\Reflection\Interface\bin\Debug\Interface.pdb
+F:\Study\CompProg\Reflection\Interface\obj\Debug\Interface.exe
+F:\Study\CompProg\Reflection\Interface\obj\Debug\Interface.pdb
+F:\Study\CompProg\Reflection — копия\Interface\bin\Debug\Interface.exe.config
+F:\Study\CompProg\Reflection — копия\Interface\bin\Debug\Interface.exe
+F:\Study\CompProg\Reflection — копия\Interface\bin\Debug\Interface.pdb
+F:\Study\CompProg\Reflection — копия\Interface\obj\Debug\Interface.csprojAssemblyReference.cache
+F:\Study\CompProg\Reflection — копия\Interface\obj\Debug\Interface.csproj.CoreCompileInputs.cache
+F:\Study\CompProg\Reflection — копия\Interface\obj\Debug\Interface.exe
+F:\Study\CompProg\Reflection — копия\Interface\obj\Debug\Interface.pdb
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Interface\bin\Debug\Interface.exe.config
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Interface\bin\Debug\Interface.exe
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Interface\bin\Debug\Interface.pdb
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Interface\obj\Debug\Interface.csproj.CoreCompileInputs.cache
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Interface\obj\Debug\Interface.exe
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Interface\obj\Debug\Interface.pdb
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Interface\bin\Debug\Interface.exe.config
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Interface\bin\Debug\Interface.exe
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Interface\bin\Debug\Interface.pdb
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Interface\obj\Debug\Interface.csprojAssemblyReference.cache
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Interface\obj\Debug\Interface.csproj.CoreCompileInputs.cache
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Interface\obj\Debug\Interface.exe
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Interface\obj\Debug\Interface.pdb

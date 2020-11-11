@@ -1,0 +1,56 @@
+F:\Study\CompProg\Reflection\Main\Main\obj\Debug\Main.csprojAssemblyReference.cache
+F:\Study\CompProg\Reflection\Main\Main\obj\Debug\Main.Properties.Resources.resources
+F:\Study\CompProg\Reflection\Main\Main\obj\Debug\Main.csproj.GenerateResource.cache
+F:\Study\CompProg\Reflection\Main\Main\obj\Debug\Main.csproj.CoreCompileInputs.cache
+F:\Study\CompProg\Reflection\Main\Main\bin\Debug\Main.exe.config
+F:\Study\CompProg\Reflection\Main\Main\bin\Debug\Main.exe
+F:\Study\CompProg\Reflection\Main\Main\bin\Debug\Main.pdb
+F:\Study\CompProg\Reflection\Main\Main\bin\Debug\Interface.exe
+F:\Study\CompProg\Reflection\Main\Main\bin\Debug\Interface.pdb
+F:\Study\CompProg\Reflection\Main\Main\bin\Debug\Interface.exe.config
+F:\Study\CompProg\Reflection\Main\Main\obj\Debug\Main.csproj.CopyComplete
+F:\Study\CompProg\Reflection\Main\Main\obj\Debug\Main.exe
+F:\Study\CompProg\Reflection\Main\Main\obj\Debug\Main.pdb
+F:\Study\CompProg\Reflection\Main\Main\obj\Debug\Main.MainForm.resources
+F:\Study\CompProg\Reflection — копия\Main\Main\bin\Debug\Main.exe.config
+F:\Study\CompProg\Reflection — копия\Main\Main\bin\Debug\Main.exe
+F:\Study\CompProg\Reflection — копия\Main\Main\bin\Debug\Main.pdb
+F:\Study\CompProg\Reflection — копия\Main\Main\bin\Debug\Interface.exe
+F:\Study\CompProg\Reflection — копия\Main\Main\bin\Debug\Interface.pdb
+F:\Study\CompProg\Reflection — копия\Main\Main\bin\Debug\Interface.exe.config
+F:\Study\CompProg\Reflection — копия\Main\Main\obj\Debug\Main.csprojAssemblyReference.cache
+F:\Study\CompProg\Reflection — копия\Main\Main\obj\Debug\Main.MainForm.resources
+F:\Study\CompProg\Reflection — копия\Main\Main\obj\Debug\Main.Properties.Resources.resources
+F:\Study\CompProg\Reflection — копия\Main\Main\obj\Debug\Main.csproj.GenerateResource.cache
+F:\Study\CompProg\Reflection — копия\Main\Main\obj\Debug\Main.csproj.CoreCompileInputs.cache
+F:\Study\CompProg\Reflection — копия\Main\Main\obj\Debug\Main.csproj.CopyComplete
+F:\Study\CompProg\Reflection — копия\Main\Main\obj\Debug\Main.exe
+F:\Study\CompProg\Reflection — копия\Main\Main\obj\Debug\Main.pdb
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\bin\Debug\Main.exe.config
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\bin\Debug\Main.exe
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\bin\Debug\Main.pdb
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\bin\Debug\Interface.exe
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\bin\Debug\Interface.pdb
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\bin\Debug\Interface.exe.config
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\obj\Debug\Main.csprojAssemblyReference.cache
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\obj\Debug\Main.MainForm.resources
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\obj\Debug\Main.Properties.Resources.resources
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\obj\Debug\Main.csproj.GenerateResource.cache
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\obj\Debug\Main.csproj.CoreCompileInputs.cache
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\obj\Debug\Main.csproj.CopyComplete
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\obj\Debug\Main.exe
+E:\YandexDisk\Универ\Компонентное программирование\Практика №3\Модули расширения\Main\Main\obj\Debug\Main.pdb
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\bin\Debug\Main.exe.config
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\bin\Debug\Main.exe
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\bin\Debug\Main.pdb
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\bin\Debug\Interface.exe
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\bin\Debug\Interface.pdb
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\bin\Debug\Interface.exe.config
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\obj\Debug\Main.csprojAssemblyReference.cache
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\obj\Debug\Main.MainForm.resources
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\obj\Debug\Main.Properties.Resources.resources
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\obj\Debug\Main.csproj.GenerateResource.cache
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\obj\Debug\Main.csproj.CoreCompileInputs.cache
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\obj\Debug\Main.csproj.CopyComplete
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\obj\Debug\Main.exe
+Z:\Users\kolya59\Yandex.Disk.localized\Универ\Компонентное программирование\Модули расширения\Main\Main\obj\Debug\Main.pdb

@@ -1,0 +1,9 @@
+R:\Labs7\КП\ExtModule\PluginContrast\bin\Debug\PluginContrast.dll
+R:\Labs7\КП\ExtModule\PluginContrast\bin\Debug\PluginContrast.pdb
+R:\Labs7\КП\ExtModule\PluginContrast\bin\Debug\PluginInterface.dll
+R:\Labs7\КП\ExtModule\PluginContrast\bin\Debug\PluginInterface.pdb
+R:\Labs7\КП\ExtModule\PluginContrast\obj\Debug\PluginContrast.csprojAssemblyReference.cache
+R:\Labs7\КП\ExtModule\PluginContrast\obj\Debug\PluginContrast.csproj.CoreCompileInputs.cache
+R:\Labs7\КП\ExtModule\PluginContrast\obj\Debug\PluginContrast.csproj.CopyComplete
+R:\Labs7\КП\ExtModule\PluginContrast\obj\Debug\PluginContrast.dll
+R:\Labs7\КП\ExtModule\PluginContrast\obj\Debug\PluginContrast.pdb

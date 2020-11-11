@@ -1,0 +1,6 @@
+R:\Labs7\КП\ExtModule\PluginInterface\bin\Debug\PluginInterface.dll
+R:\Labs7\КП\ExtModule\PluginInterface\bin\Debug\PluginInterface.pdb
+R:\Labs7\КП\ExtModule\PluginInterface\obj\Debug\PluginInterface.csprojAssemblyReference.cache
+R:\Labs7\КП\ExtModule\PluginInterface\obj\Debug\PluginInterface.csproj.CoreCompileInputs.cache
+R:\Labs7\КП\ExtModule\PluginInterface\obj\Debug\PluginInterface.dll
+R:\Labs7\КП\ExtModule\PluginInterface\obj\Debug\PluginInterface.pdb
