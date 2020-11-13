@@ -45,6 +45,7 @@ public:
 	}
 };
 
+//Вектор
 class Vector
 {
 	double* m_vector;
@@ -82,6 +83,7 @@ public:
 	}
 };
 
+//Матрица
 class Matrix
 {
 	Vector* m_vectors;
@@ -104,7 +106,7 @@ public:
 	}
 };
 
-//Функция
+//Функция и её производная
 struct Function
 {
 	using FuncType = std::function<double(double)>;
@@ -116,24 +118,27 @@ struct Function
 	{}
 };
 
-//Разбиение отрезка [a, b]
-struct Splitting
+//Таблица узлов интерполяции
+class NodeTable
 {
+public:
 	int m_N;
-	function<double(int)> m_nodes;
-	Splitting(int N, function<double(int)> nodes)
-		: m_N(N), m_nodes(nodes)
+	function<double(int)> m_x_nodes;
+	function<double(int)> m_y_nodes;
+
+	NodeTable(int N, function<double(int)> x_nodes, function<double(int)> y_nodes)
+		: m_N(N), m_x_nodes(x_nodes), m_y_nodes(y_nodes)
 	{}
 
 	//вычислить h(i)
 	double getH(int i) {
-		return m_nodes(i + 1) - m_nodes(i);
+		return m_x_nodes(i + 1) - m_x_nodes(i);
 	}
 
 	//вычислить индекс отрезка, которому принадлежит x
 	int calcIndex(double x) {
 		for (int i = 0; i < m_N; i++) {
-			if (x >= m_nodes(i) && x <= m_nodes(i + 1))
+			if (x >= m_x_nodes(i) && x <= m_x_nodes(i + 1))
 				return i;
 		}
 		throw std::logic_error("x out of the range");
@@ -145,17 +150,11 @@ class Interpolation
 {
 public:
 	Function m_f;
-	Splitting m_splitting;
+	NodeTable m_nodeTable;
 
-	Interpolation(Function f, Splitting splitting)
-		: m_f(f), m_splitting(splitting)
+	Interpolation(Function f, NodeTable splittingTable)
+		: m_f(f), m_nodeTable(splittingTable)
 	{}
-
-	//значение f(i)
-	double getNodeY(int idx) {
-		auto x = m_splitting.m_nodes(idx);
-		return m_f.m_func(x);
-	}
 
 	//вычислить значение полученного полинома в произвольной точке
 	virtual double interpolate(double x) = 0;
@@ -167,10 +166,10 @@ class NewtonianInterpolation : public Interpolation
 	//таблица разделенных разностей (без столбца значений X)
 	Matrix m_divDifferTable;
 public:
-	NewtonianInterpolation(Function f, Splitting splitting)
-		: Interpolation(f, splitting)
+	NewtonianInterpolation(Function f, NodeTable nodeTable)
+		: Interpolation(f, nodeTable)
 	{
-		m_divDifferTable = Matrix(splitting.m_N + 1);
+		m_divDifferTable = Matrix(m_nodeTable.m_N + 1);
 		fillDivDifferTable();
 	}
 
@@ -179,7 +178,7 @@ public:
 		double w = 1;
 		double result = m_divDifferTable[0][0];
 		for (int i = 1; i < m_divDifferTable.m_N; i++) {
-			w *= x - m_splitting.m_nodes(i - 1);
+			w *= x - m_nodeTable.m_x_nodes(i - 1);
 			result += m_divDifferTable[0][i] * w;
 		}
 		return result;
@@ -190,7 +189,7 @@ public:
 	{
 		printf("Таблица разделенных разностей\n");
 		for (int i = 0; i < m_divDifferTable.m_N; i++) {
-			printf("%.2f  ", m_splitting.m_nodes(i));
+			printf("%.2f  ", m_nodeTable.m_x_nodes(i));
 			for (int j = 0; j < m_divDifferTable.m_N - i; j++) {
 				printf("%.6f  ", m_divDifferTable[i][j]);
 			}
@@ -201,14 +200,14 @@ private:
 	void fillDivDifferTable() {
 		//заполняем первый столбец
 		for (int i = 0; i < m_divDifferTable.m_N; i++) {
-			m_divDifferTable[i][0] = getNodeY(i);
+			m_divDifferTable[i][0] = m_nodeTable.m_y_nodes(i);
 		}
 
 		//заполняем все последующие столбцы
 		for (int j = 1; j < m_divDifferTable.m_N; j++) {
 			for (int i = 0; i < m_divDifferTable.m_N - j; i++) {
 				m_divDifferTable[i][j] =
-					(m_divDifferTable[i + 1][j - 1] - m_divDifferTable[i][j - 1]) / (m_splitting.m_nodes(i + j) - m_splitting.m_nodes(i));
+					(m_divDifferTable[i + 1][j - 1] - m_divDifferTable[i][j - 1]) / (m_nodeTable.m_x_nodes(i + j) - m_nodeTable.m_x_nodes(i));
 			}
 		}
 	}
@@ -220,24 +219,32 @@ class SplineInterpolation : public Interpolation
 public:
 	Vector m_vectorM;
 
-	SplineInterpolation(Function f, Splitting splitting)
-		: Interpolation(f, splitting)
+	SplineInterpolation(Function f, NodeTable nodeTable)
+		: Interpolation(f, nodeTable)
 	{
-		m_vectorM = Vector(splitting.m_N + 1);
-		m_vectorM[0] = f.m_derivative(m_splitting.m_nodes(0));
-		m_vectorM[m_vectorM.m_N - 1] = f.m_derivative(m_splitting.m_nodes(m_vectorM.m_N - 1));
+		m_vectorM = Vector(m_nodeTable.m_N + 1);
+		m_vectorM[0] = f.m_derivative(m_nodeTable.m_x_nodes(0));
+		m_vectorM[m_vectorM.m_N - 1] = f.m_derivative(m_nodeTable.m_x_nodes(m_vectorM.m_N - 1));
 		calcVectorM();
 	}
 
 	//вычислить значение полученного полинома в произвольной точке
 	double interpolate(double x) override {
-		auto idx = m_splitting.calcIndex(x);
-		auto h = m_splitting.getH(idx);
-		auto tau = (x - m_splitting.m_nodes(idx)) / h;
-		return Fi0(tau) * getNodeY(idx) + Fi0(1 - tau) * getNodeY(idx + 1) + h * (Fi1(tau) * m_vectorM[idx] - Fi1(1 - tau) * m_vectorM[idx + 1]);
+		return interpolate(x, nullptr, 0, 0);
+	}
+
+	//интерполяция + вычисление погрешности
+	double interpolate(double x, double* errorEst, double M4, double M5) {
+		auto idx = m_nodeTable.calcIndex(x);
+		auto h = m_nodeTable.getH(idx);
+		auto tau = (x - m_nodeTable.m_x_nodes(idx)) / h;
+		if (errorEst)
+			*errorEst = tau * Fi1(tau) * pow(h, 4) * M4 / 24 + (Fi1(tau) + Fi1(1 - tau)) * pow(h, 5) * M5 / 60;
+		return Fi0(tau) * m_nodeTable.m_y_nodes(idx) + Fi0(1 - tau) * m_nodeTable.m_y_nodes(idx + 1) + h * (Fi1(tau) * m_vectorM[idx] - Fi1(1 - tau) * m_vectorM[idx + 1]);
 	}
 
 private:
+	//найти значения m(i)
 	void calcVectorM() {
 		Vector a(m_vectorM.m_N - 2);
 		Vector c(a.m_N);
@@ -246,18 +253,18 @@ private:
 		Vector x(a.m_N);
 
 		for (int i = 1, j = 0; i <= m_vectorM.m_N - 1; i++, j++) {
-			auto curH = m_splitting.getH(i);
-			auto prevH = m_splitting.getH(i - 1);
+			auto curH = m_nodeTable.getH(i);
+			auto prevH = m_nodeTable.getH(i - 1);
 
 			b[j] = prevH / (prevH + curH);
 			c[j] = 2;
 			a[j] = 1 - b[j];
-			f[j] = 3 * a[j] * (getNodeY(i) - getNodeY(i - 1)) / prevH +
-				3 * b[j] * (getNodeY(i + 1) - getNodeY(i)) / curH;
+			f[j] = 3 * a[j] * (m_nodeTable.m_y_nodes(i) - m_nodeTable.m_y_nodes(i - 1)) / prevH +
+				3 * b[j] * (m_nodeTable.m_y_nodes(i + 1) - m_nodeTable.m_y_nodes(i)) / curH;
 		}
 
-		f[0] -= m_splitting.getH(1) / (m_splitting.getH(0) + m_splitting.getH(1)) * m_vectorM[0];
-		f[f.m_N - 1] -= m_splitting.getH(m_vectorM.m_N - 2) / (m_splitting.getH(m_vectorM.m_N - 2) + m_splitting.getH(m_vectorM.m_N - 1)) * m_vectorM[m_vectorM.m_N - 1];
+		f[0] -= m_nodeTable.getH(1) / (m_nodeTable.getH(0) + m_nodeTable.getH(1)) * m_vectorM[0];
+		f[f.m_N - 1] -= m_nodeTable.getH(m_vectorM.m_N - 2) / (m_nodeTable.getH(m_vectorM.m_N - 2) + m_nodeTable.getH(m_vectorM.m_N - 1)) * m_vectorM[m_vectorM.m_N - 1];
 
 		SweepMethod(a, c, b, x, f);
 		for (int i = 0; i < x.m_N; i++) {
@@ -273,6 +280,7 @@ private:
 		return tau * pow(1 - tau, 2);
 	}
 
+	//Метод прогонки (матрица состоит из 3-х диагоналей: a, c, b)
 	static void SweepMethod(Vector& a, Vector& c, Vector& b, Vector& x, Vector& f) {
 		Vector alpha(x.m_N);
 		Vector beta(x.m_N);
@@ -297,6 +305,8 @@ int main()
 	system("chcp 1251");
 
 	int N = 5;
+	double A = 1;
+	double B = 2;
 
 	//функция и её производная
 	Function func(
@@ -310,8 +320,10 @@ int main()
 	double M4 = 4.3701774; //4 порядка
 
 	printf("Интерполяционная формула Ньютона\n");
-	Splitting splitting(N, [N](int i) { return 1.0 + i * (2.0 - 1.0) / N; });
-	NewtonianInterpolation newtonianInterpolation(func, splitting);
+	auto nodesX = [&](int i) { return A + i * (B - A) / N; };
+	auto nodesY = [&](int i) { return func.m_func(nodesX(i)); };
+	NodeTable nodeTable(N, nodesX, nodesY);
+	NewtonianInterpolation newtonianInterpolation(func, nodeTable);
 	newtonianInterpolation.printDivDifferTable();
 
 	printf("\nM6 = %f\n", M6);
@@ -325,59 +337,62 @@ int main()
 		//расчет оценки
 		double w = 1;
 		for (int i = 0; i <= N; i++)
-			w *= x - splitting.m_nodes(i);
+			w *= x - nodeTable.m_x_nodes(i);
 		double deltaEst = w * M6 / 720;
 		table.printTableRow({ x, func.m_func(x), Pn, abs(func.m_func(x)- Pn), abs(deltaEst) });
 	}
-
+	
 	printf("\nИнтерполяция кубическим сплайном\n");
-	SplineInterpolation splineInterpolation(func, splitting);
+	SplineInterpolation splineInterpolation(func, nodeTable);
 
+	//Вычисление производных в узлах интерполяции
 	printf("\nM5 = %f\n", M5);
 	Table table2({ "x[i]", "df/dx(x[i])", "m[i]", "Delta", "Оценка" }, { 2, 7, 7, 15, 15 });
 	table2.printTableHeader();
 	for (int i = 0; i < N + 1; i++) {
-		auto x = splitting.m_nodes(i);
+		auto x = nodeTable.m_x_nodes(i);
 		auto dF = func.m_derivative(x);
 		auto m = splineInterpolation.m_vectorM[i];
-		table2.printTableRow({ x, dF, m, abs(dF - m), abs(0.0) });
+		double h = nodeTable.getH(0);
+		double deltaEst = M5 * pow(h, 4) / 60;
+		table2.printTableRow({ x, dF, m, abs(dF - m), deltaEst });
 	}
 
-
+	//Вычисление промежуточных значений
 	printf("\nM4 = %f\n", M4);
 	Table table3({ "x", "f(x)", "S31(f;x)", "Abs(f(x)-S31(f;x))", "Оценка" }, { 2, 5, 5, 15, 15 });
 	table3.printTableHeader();
 	for (int i = 0; i < N; i++) {
 		double x = 1.0 + (i + 0.5) * (2.0 - 1.0) / N;
-		double S31 = splineInterpolation.interpolate(x);
-
-		table3.printTableRow({ x, func.m_func(x), S31, abs(func.m_func(x) - S31), abs(0.0) });
+		double deltaEst;
+		double S31 = splineInterpolation.interpolate(x, &deltaEst, M4, M5);
+		double h = nodeTable.getH(0);
+		double deltaEst2 = (M4 / 384 + M5 * h / 240)* pow(h, 4); //deltaEst < deltaEst2
+		table3.printTableRow({ x, func.m_func(x), S31, abs(func.m_func(x) - S31), deltaEst });
 	}
 
 
-	/*Vector a(4);
-	Vector b(4);
-	Vector c(4);
-	Vector x(4);
-	Vector f(4);
-	a[0] = 0;
-	a[1] = 3;
-	a[2] = 6;
-	a[3] = 9;
-	c[0] = 10;
-	c[1] = 40;
-	c[2] = 70;
-	c[3] = 100;
-	b[0] = 2;
-	b[1] = 5;
-	b[2] = 8;
-	b[3] = 0;
-	f[0] = 1;
-	f[1] = 2;
-	f[2] = 3;
-	f[3] = 4;
-	SplineInterpolation::SweepMethod(a, c, b, x, f);
 
-	printf("\n\n");
-	x.printVector();*/
+
+	//2 пункт лабы ...
+
+
+
+
+	printf("\nРешение уравнения методом обратной интерполяции\n");
+	//выбираем отрезок [a, b], где находится предполагаемый корень, а также выбираем n отрезков разбиения
+	int n = 5;
+	double a = 1.0;
+	double b = 2.0;
+	double c = 4.2321; //правая часть уравнения f(x) = c
+	auto nodesX2 = [&](int i) { return a + i * (b - a) / n; };
+	auto nodesY2 = [&](int i) { return func.m_func(nodesX2(i)); };
+	NodeTable nodeTable2(n, nodesY2, nodesX2); //наоборот
+	NewtonianInterpolation newtonianInterpolation2(func, nodeTable2);
+	newtonianInterpolation2.printDivDifferTable();
+	auto x = newtonianInterpolation2.interpolate(c);
+
+	printf("c = %.4f\n", c);
+	printf("Корень=%.5f\n", x);
+	printf("Невязка=Abs(f(x)-c)=%f\n", abs(func.m_func(x) - c));
 }
