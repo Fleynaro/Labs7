@@ -2,11 +2,13 @@
 #include <algorithm>
 #include <math.h>
 #include <fstream>
+#include <sstream>
 #include <functional>
 #include <iomanip>
 #include <cstdarg>
 #include <mutex>
 #include <atomic>
+#include <list>
 #include <Windows.h>
 
 using namespace std;
@@ -14,11 +16,6 @@ using namespace std;
 enum class Algorithm {
     Simple = 1,
     Strassen
-};
-
-enum class Case {
-    Best,
-    Worse
 };
 
 //Вектор
@@ -85,6 +82,15 @@ public:
                 for (int k = 0; k < A.getM(); k++) {
                     C[i][j] += A[i][k] * B[k][j];
                 }
+            }
+        }
+    }
+
+    static void Equal(AbstractMatrix& A, AbstractMatrix& B) {
+        for (int i = 0; i < A.getN(); i++) {
+            for (int j = 0; j < A.getM(); j++) {
+                if (A[i][j] != B[i][j])
+                    throw std::logic_error("not equal!");
             }
         }
     }
@@ -425,64 +431,55 @@ public:
         m_file.close();
     }
 
-    void insert(int V, int testId, Algorithm algorithmId, Case caseId, Measure& measure) {
+    void insert(int V, int testId, Algorithm algorithmId, int strassenBoundary, Measure& measure) {
         auto elapsed = measure.elapsed();
         m_mutex.lock();
-        m_file << V << "," << testId << "," << (int)algorithmId << "," << (int)caseId << "," << elapsed << endl;
+        std::stringstream ss;
+        ss << V << "," << testId << "," << (int)algorithmId << "," << (int)strassenBoundary << "," << elapsed << endl;
+        m_file << ss.str();
+        cout << ss.str();
         m_mutex.unlock();
     }
 };
 
-struct Test
+class TestUnit
 {
     TestLoggerCSV* m_testLoggerCSV;
     int m_testCount;
-
-    Test(TestLoggerCSV* testLoggerCSV, int testCount)
-        : m_testLoggerCSV(testLoggerCSV), m_testCount(testCount)
-    {}
-};
-
-class TestUnit
-{
-    Test* m_test;
     int m_V;
     Algorithm m_algorithm;
-    Case m_case;
-    std::atomic<int> m_completedTestCount;
+    int m_strassenBoundary;
 public:
-    TestUnit(Test* test, int V, Algorithm algorithmId, Case caseId)
-        : m_test(test), m_V(V), m_algorithm(algorithmId), m_case(caseId)
+    TestUnit(TestLoggerCSV* testLoggerCSV, int testCount, int V, Algorithm algorithmId, int strassenBoundary)
+        : m_testLoggerCSV(testLoggerCSV), m_testCount(testCount), m_V(V), m_algorithm(algorithmId), m_strassenBoundary(strassenBoundary)
     {}
 
     void start() {
-        for (int i = 0; i < m_test->m_testCount; i++) {
+        for (int i = 0; i < m_testCount; i++) {
             std::thread task([&](int testId) {
                 startOneTest(testId);
                 }, i);
             task.join();
         }
 
-        /*wait();*/
     }
 
+    static void GenerateMatrix(Matrix& A) {
+        for (int i = 0; i < A.getN(); i++) {
+            for (int j = 0; j < A.getM(); j++) {
+                A[i][j] = rand() % 1000;
+            }
+        }
+    }
 private:
-    bool isCompleted() {
-        return m_completedTestCount == m_test->m_testCount;
-    }
-
-    /*void wait() {
-        while (!isCompleted())
-            Sleep(100);
-    }*/
 
     void startOneTest(int testId) {
         Measure measure;
         Matrix A(m_V);
         Matrix B(m_V);
         Matrix C(m_V);
-        generateMatrix(A);
-        generateMatrix(B);
+        GenerateMatrix(A);
+        GenerateMatrix(B);
 
         if (m_algorithm == Algorithm::Simple) {
             measure.start();
@@ -494,18 +491,140 @@ private:
             strassenAlgorithm.start();
         }
 
-        m_test->m_testLoggerCSV->insert(m_V, testId, m_algorithm, m_case, measure);
-        m_completedTestCount++;
-    }
-
-    void generateMatrix(Matrix& A) {
-        for (int i = 0; i < A.getN(); i++) {
-            for (int j = 0; j < A.getM(); j++) {
-                A[i][j] = rand() % 1000;
-            }
-        }
+        m_testLoggerCSV->insert(m_V, testId, m_algorithm, m_strassenBoundary, measure);
     }
 };
+
+class Test
+{
+    TestLoggerCSV* m_testLoggerCSV;
+    std::atomic<int> m_completedTestCount;
+    std::list<std::thread> m_tasks;
+public:
+    Test(TestLoggerCSV* testLoggerCSV)
+        : m_testLoggerCSV(testLoggerCSV)
+    {}
+
+    void start()
+    {
+        //compareBothAlgorithms();
+        //compareBothAlgorithms2();
+
+        compareBothAlgorithmsOnSameVolumes();
+
+        //checkOptimalParameterOfStrassen();
+
+        for (auto& task : m_tasks)
+            task.detach();
+
+        wait();
+    }
+
+    //сравнить результат 2-х алгоритмов
+    void compareBothAlgorithms2() {
+        m_tasks.push_back(std::thread([&]() {
+            task(8, 50, Algorithm::Simple);
+            task(5, 250, Algorithm::Simple);
+            task(1, 512, Algorithm::Simple);
+            task(1, 1024, Algorithm::Simple);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(8, 50, Algorithm::Strassen, 16);
+            task(5, 250, Algorithm::Strassen, 64);
+            task(1, 512, Algorithm::Strassen, 128);
+            task(1, 1024, Algorithm::Strassen, 128);
+            m_completedTestCount++;
+            }));
+    }
+
+    //сравнить результат 2-х алгоритмов
+    void compareBothAlgorithms() {
+        m_tasks.push_back(std::thread([&]() {
+            task(8, 50, Algorithm::Simple);
+            task(8, 50, Algorithm::Strassen, 16);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(5, 250, Algorithm::Simple);
+            task(5, 250, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 512, Algorithm::Simple);
+            task(1, 512, Algorithm::Strassen, 128);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 1024, Algorithm::Simple);
+            task(1, 1024, Algorithm::Strassen, 128);
+            m_completedTestCount++;
+            }));
+    }
+
+    //Сравнить оба алгоритма на объеме 250
+    void compareBothAlgorithmsOnSameVolumes() {
+        m_tasks.push_back(std::thread([&]() {
+            task(3, 460, Algorithm::Simple);
+            //task(10, 250, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+
+        m_tasks.push_back(std::thread([&]() {
+            //task(10, 250, Algorithm::Simple);
+            task(3, 460, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+    }
+
+    //проверить, какая отсечка лучше всего
+    void checkOptimalParameterOfStrassen() {
+        m_tasks.push_back(std::thread([&]() {
+            task(5, 512, Algorithm::Strassen, 32);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(5, 512, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(5, 512, Algorithm::Strassen, 128);
+            m_completedTestCount++;
+            }));
+    }
+
+private:
+    void task(int testCount, int V, Algorithm algorithmId, int strassenBoundary = 0) {
+        TestUnit testUnit(m_testLoggerCSV, testCount, V, algorithmId, strassenBoundary);
+        testUnit.start();     
+    }
+
+    bool isCompleted() {
+        return m_completedTestCount == m_tasks.size();
+    }
+
+    void wait() {
+        while (!isCompleted())
+            Sleep(100);
+    }
+};
+
+//равен ли результат алгоритмов
+void checkCorrectness() {
+    Matrix A(500);
+    Matrix B(500);
+    Matrix C1(500);
+    Matrix C2(500);
+    TestUnit::GenerateMatrix(A);
+    TestUnit::GenerateMatrix(B);
+
+    AbstractMatrix::Mul(C1, A, B);
+    StrassenAlgorithm strassenAlgorithm(&A, &B, &C2, 64);
+    strassenAlgorithm.start();
+
+    //C1[144][244] = 0.2;
+    AbstractMatrix::Equal(C1, C2);
+}
 
 int main()
 {
@@ -534,15 +653,9 @@ int main()
     printf("Оптимизированный:\n");
     C2.print();
 
+    //checkCorrectness();
 
-    Test test(&testLoggerCSV, 2);
-    
-    {
-        TestUnit testUnit(&test, 127, Algorithm::Simple, Case::Best);
-        testUnit.start();
-    }
-    {
-        TestUnit testUnit(&test, 127, Algorithm::Strassen, Case::Best);
-        testUnit.start();
-    }
+
+    Test test(&testLoggerCSV);
+    test.start();
 }
