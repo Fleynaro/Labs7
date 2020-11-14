@@ -5,8 +5,21 @@
 #include <functional>
 #include <iomanip>
 #include <cstdarg>
+#include <mutex>
+#include <atomic>
+#include <Windows.h>
 
 using namespace std;
+
+enum class Algorithm {
+    Simple = 1,
+    Strassen
+};
+
+enum class Case {
+    Best,
+    Worse
+};
 
 //Вектор
 class Vector
@@ -117,6 +130,10 @@ public:
         }
         return matrix;
     }
+
+    static void DestroyMatrix(Matrix* matrix) {
+        delete[] matrix->m_values;
+    }
 };
 
 //Расширенная матрица
@@ -181,6 +198,10 @@ public:
         m_B = ExtMatrix(B, requiredN);
         m_C = ExtMatrix(C, requiredN);
         allocateMemoryForTempData();
+    }
+
+    ~StrassenAlgorithm() {
+        delete[] m_tempData;
     }
 
     void start() {
@@ -334,6 +355,7 @@ private:
     }
 };
 
+//Парсер
 class MatrixParser
 {
     std::ifstream m_file;
@@ -342,6 +364,10 @@ public:
     MatrixParser(std::string filename = "in.txt")
         : m_file(filename)
     {}
+
+    ~MatrixParser() {
+        m_file.close();
+    }
 
     Matrix parseMatrix() {
         if (!m_file.is_open())
@@ -365,10 +391,127 @@ public:
     }
 };
 
+//Измерить время теста
+struct Measure
+{
+    std::chrono::steady_clock::time_point m_start;
+
+    void start() {
+        m_start = std::chrono::high_resolution_clock::now();
+    }
+
+    long long elapsed() {
+        auto elapsed = std::chrono::high_resolution_clock::now() - m_start;
+        return std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+    }
+};
+
+//Логгер тестов (формат .csv)
+class TestLoggerCSV
+{
+    std::ofstream m_file;
+    std::mutex m_mutex;
+public:
+    TestLoggerCSV(std::string filename = "tests.csv")
+        : m_file(filename)
+    {
+        if (!m_file.is_open())
+            throw std::exception();
+        m_file.clear();
+        m_file << "V" << "," << "testId" << "," << "algorithmId" << "," << "caseId" << "," << "time" << endl;
+    }
+
+    ~TestLoggerCSV() {
+        m_file.close();
+    }
+
+    void insert(int V, int testId, Algorithm algorithmId, Case caseId, Measure& measure) {
+        auto elapsed = measure.elapsed();
+        m_mutex.lock();
+        m_file << V << "," << testId << "," << (int)algorithmId << "," << (int)caseId << "," << elapsed << endl;
+        m_mutex.unlock();
+    }
+};
+
+struct Test
+{
+    TestLoggerCSV* m_testLoggerCSV;
+    int m_testCount;
+
+    Test(TestLoggerCSV* testLoggerCSV, int testCount)
+        : m_testLoggerCSV(testLoggerCSV), m_testCount(testCount)
+    {}
+};
+
+class TestUnit
+{
+    Test* m_test;
+    int m_V;
+    Algorithm m_algorithm;
+    Case m_case;
+    std::atomic<int> m_completedTestCount;
+public:
+    TestUnit(Test* test, int V, Algorithm algorithmId, Case caseId)
+        : m_test(test), m_V(V), m_algorithm(algorithmId), m_case(caseId)
+    {}
+
+    void start() {
+        for (int i = 0; i < m_test->m_testCount; i++) {
+            std::thread task([&](int testId) {
+                startOneTest(testId);
+                }, i);
+            task.join();
+        }
+
+        /*wait();*/
+    }
+
+private:
+    bool isCompleted() {
+        return m_completedTestCount == m_test->m_testCount;
+    }
+
+    /*void wait() {
+        while (!isCompleted())
+            Sleep(100);
+    }*/
+
+    void startOneTest(int testId) {
+        Measure measure;
+        Matrix A(m_V);
+        Matrix B(m_V);
+        Matrix C(m_V);
+        generateMatrix(A);
+        generateMatrix(B);
+
+        if (m_algorithm == Algorithm::Simple) {
+            measure.start();
+            AbstractMatrix::Mul(C, A, B);
+        }
+        else {
+            measure.start();
+            StrassenAlgorithm strassenAlgorithm(&A, &B, &C, 64);
+            strassenAlgorithm.start();
+        }
+
+        m_test->m_testLoggerCSV->insert(m_V, testId, m_algorithm, m_case, measure);
+        m_completedTestCount++;
+    }
+
+    void generateMatrix(Matrix& A) {
+        for (int i = 0; i < A.getN(); i++) {
+            for (int j = 0; j < A.getM(); j++) {
+                A[i][j] = rand() % 1000;
+            }
+        }
+    }
+};
 
 int main()
 {
     system("chcp 1251");
+
+    TestLoggerCSV testLoggerCSV("tests.csv");
 
     MatrixParser matrixParser("in.txt");
     Matrix A = matrixParser.parseMatrix();
@@ -382,8 +525,6 @@ int main()
     B.print();
 
     Matrix::Mul(C1, A, B);
-
-    //todo: привидение матрицы к нужной степени
     StrassenAlgorithm strassenAlgorithm(&A, &B, &C2, 2);
     strassenAlgorithm.start();
     
@@ -392,4 +533,16 @@ int main()
     C1.print();
     printf("Оптимизированный:\n");
     C2.print();
+
+
+    Test test(&testLoggerCSV, 2);
+    
+    {
+        TestUnit testUnit(&test, 127, Algorithm::Simple, Case::Best);
+        testUnit.start();
+    }
+    {
+        TestUnit testUnit(&test, 127, Algorithm::Strassen, Case::Best);
+        testUnit.start();
+    }
 }
