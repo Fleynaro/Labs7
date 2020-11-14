@@ -12,6 +12,7 @@ using namespace std;
 class Vector
 {
     double* m_values;
+    double m_value = 0.0;
 public:
     int m_N;
 
@@ -19,8 +20,8 @@ public:
         : m_values(values), m_N(N)
     {}
 
-    double& operator[](int index) {
-        return m_values[index];
+    virtual double& operator[](int index) {
+        return (index < m_N) ? m_values[index] : m_value;
     }
 
     void fillBy(double value = 0) {
@@ -30,14 +31,59 @@ public:
     }
 };
 
+class AbstractMatrix
+{
+public:
+    virtual int getN() = 0;
+
+    virtual int getM() = 0;
+
+    virtual Vector operator[](int index) = 0;
+
+    void clear() {
+        for (int i = 0; i < getM(); i++) {
+            (*this)[i].fillBy(0);
+        }
+    }
+
+    void print() {
+        printf("\n");
+        for (int i = 0; i < getN(); i++) {
+            for (int j = 0; j < getM(); j++) {
+                printf("%.7f ", (*this)[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
+
+    static void Add(AbstractMatrix& C, AbstractMatrix& A, AbstractMatrix& B, double sign = 1.0) {
+        for (int i = 0; i < C.getN(); i++) {
+            for (int j = 0; j < C.getM(); j++) {
+                C[i][j] = A[i][j] + B[i][j] * sign;
+            }
+        }
+    }
+
+    static void Mul(AbstractMatrix& C, AbstractMatrix& A, AbstractMatrix& B) {
+        for (int i = 0; i < C.getN(); i++) {
+            for (int j = 0; j < C.getM(); j++) {
+                C[i][j] = 0.0;
+                for (int k = 0; k < A.getM(); k++) {
+                    C[i][j] += A[i][k] * B[k][j];
+                }
+            }
+        }
+    }
+};
+
 //Матрица
-class Matrix
+class Matrix : public AbstractMatrix
 {
     double* m_values;
-public:
     int m_N;
     int m_M;
-
+public:
     Matrix(double* values, int N, int M)
         : m_values(values), m_N(N), m_M(M)
     {}
@@ -49,44 +95,16 @@ public:
         clear();
     }
 
-    Vector operator[](int index) {
+    int getN() override {
+        return m_N;
+    }
+
+    int getM() override {
+        return m_M;
+    }
+
+    Vector operator[](int index) override {
         return Vector(&m_values[m_N * index], m_N);
-    }
-
-    void print() {
-        printf("\n");
-        for (int i = 0; i < m_N; i++) {
-            for (int j = 0; j < m_M; j++) {
-                printf("%.7f ", (*this)[i][j]);
-            }
-            printf("\n");
-        }
-        printf("\n");
-    }
-
-    void clear() {
-        for (int i = 0; i < m_M; i++) {
-            (*this)[i].fillBy(0);
-        }
-    }
-
-    static void Add(Matrix& C, Matrix& A, Matrix& B, double sign = 1.0) {
-        for (int i = 0; i < C.m_N; i++) {
-            for (int j = 0; j < C.m_M; j++) {
-                C[i][j] = A[i][j] + B[i][j] * sign;
-            }
-        }
-    }
-
-    static void Mul(Matrix& C, Matrix& A, Matrix& B) {
-        for (int i = 0; i < C.m_N; i++) {
-            for (int j = 0; j < C.m_M; j++) {
-                C[i][j] = 0.0;
-                for (int k = 0; k < A.m_M; k++) {
-                    C[i][j] += A[i][k] * B[k][j];
-                }
-            }
-        }
     }
 
     template<int N>
@@ -98,6 +116,33 @@ public:
             }
         }
         return matrix;
+    }
+};
+
+//Расширенная матрица
+class ExtMatrix : public AbstractMatrix
+{
+    AbstractMatrix* m_srcMatrix = nullptr;
+    int m_extN = 0;
+public:
+    ExtMatrix() = default;
+
+    ExtMatrix(AbstractMatrix* srcMatrix, int extN)
+        : m_srcMatrix(srcMatrix), m_extN(extN)
+    {}
+
+    int getN() override {
+        return m_extN;
+    }
+
+    int getM() override {
+        return m_extN;
+    }
+
+    Vector operator[](int index) override {
+        if (index >= m_srcMatrix->getN())
+            return Vector(nullptr, 0);
+        return (*m_srcMatrix)[index];
     }
 };
 
@@ -122,26 +167,30 @@ public:
 
 class StrassenAlgorithm
 {
-    Matrix* m_A;
-    Matrix* m_B;
-    Matrix* m_C;
+    ExtMatrix m_A;
+    ExtMatrix m_B;
+    ExtMatrix m_C;
     int m_switchBoundary;
     double* m_tempData;
 public:
-    StrassenAlgorithm(Matrix* A, Matrix* B, Matrix* C, int switchBoundary = 2)
-        : m_A(A), m_B(B), m_C(C), m_switchBoundary(switchBoundary)
+    StrassenAlgorithm(AbstractMatrix* A, AbstractMatrix* B, AbstractMatrix* C, int switchBoundary = 2)
+        : m_switchBoundary(switchBoundary)
     {
+        auto requiredN = GetNearestDegreeOf2(max(max(A->getN(), B->getN()), C->getN()));
+        m_A = ExtMatrix(A, requiredN);
+        m_B = ExtMatrix(B, requiredN);
+        m_C = ExtMatrix(C, requiredN);
         allocateMemoryForTempData();
     }
 
     void start() {
-        recMul(*m_A, *m_B, *m_C, 0);
+        recMul(m_A, m_B, m_C, 0);
     }
 private:
-    void recMul(Matrix& A, Matrix& B, Matrix& C, int depth) {
+    void recMul(AbstractMatrix& A, AbstractMatrix& B, AbstractMatrix& C, int depth) {
         auto matrixDstOperand = getTempMatrixByIndex(0, depth);
-        if(matrixDstOperand.m_N < m_switchBoundary) {
-            Matrix::Mul(C, A, B);
+        if(matrixDstOperand.getN() < m_switchBoundary) {
+            AbstractMatrix::Mul(C, A, B);
             return;
         }
 
@@ -153,10 +202,10 @@ private:
         takeQuarter(matrixSrcOperand1, A, 0, 0);
         takeQuarter(matrixSrcOperand2, A, 1, 1);
         
-        Matrix::Add(matrixSrcOperand1, matrixSrcOperand1, matrixSrcOperand2, 1.0);
+        AbstractMatrix::Add(matrixSrcOperand1, matrixSrcOperand1, matrixSrcOperand2, 1.0);
         takeQuarter(matrixDstOperand, B, 0, 0);
         takeQuarter(matrixSrcOperand2, B, 1, 1);
-        Matrix::Add(matrixSrcOperand2, matrixDstOperand, matrixSrcOperand2, 1.0);
+        AbstractMatrix::Add(matrixSrcOperand2, matrixDstOperand, matrixSrcOperand2, 1.0);
 
         recMul(matrixSrcOperand1, matrixSrcOperand2, matrixDstOperand, depth + 1);
         addQuarter(C, matrixDstOperand, 0, 0);
@@ -166,7 +215,7 @@ private:
         //P2
         takeQuarter(matrixSrcOperand1, A, 1, 0);
         takeQuarter(matrixSrcOperand2, A, 1, 1);
-        Matrix::Add(matrixSrcOperand1, matrixSrcOperand1, matrixSrcOperand2, 1.0);
+        AbstractMatrix::Add(matrixSrcOperand1, matrixSrcOperand1, matrixSrcOperand2, 1.0);
         takeQuarter(matrixSrcOperand2, B, 0, 0);
         
         recMul(matrixSrcOperand1, matrixSrcOperand2, matrixDstOperand, depth + 1);
@@ -177,7 +226,7 @@ private:
         //P3
         takeQuarter(matrixSrcOperand1, B, 0, 1);
         takeQuarter(matrixSrcOperand2, B, 1, 1);
-        Matrix::Add(matrixSrcOperand2, matrixSrcOperand1, matrixSrcOperand2, -1.0);
+        AbstractMatrix::Add(matrixSrcOperand2, matrixSrcOperand1, matrixSrcOperand2, -1.0);
         takeQuarter(matrixSrcOperand1, A, 0, 0);
 
         recMul(matrixSrcOperand1, matrixSrcOperand2, matrixDstOperand, depth + 1);
@@ -188,7 +237,7 @@ private:
         //P4
         takeQuarter(matrixSrcOperand1, B, 1, 0);
         takeQuarter(matrixSrcOperand2, B, 0, 0);
-        Matrix::Add(matrixSrcOperand2, matrixSrcOperand1, matrixSrcOperand2, -1.0);
+        AbstractMatrix::Add(matrixSrcOperand2, matrixSrcOperand1, matrixSrcOperand2, -1.0);
         takeQuarter(matrixSrcOperand1, A, 1, 1);
 
         recMul(matrixSrcOperand1, matrixSrcOperand2, matrixDstOperand, depth + 1);
@@ -199,7 +248,7 @@ private:
         //P5
         takeQuarter(matrixSrcOperand1, A, 0, 0);
         takeQuarter(matrixSrcOperand2, A, 0, 1);
-        Matrix::Add(matrixSrcOperand1, matrixSrcOperand1, matrixSrcOperand2, 1.0);
+        AbstractMatrix::Add(matrixSrcOperand1, matrixSrcOperand1, matrixSrcOperand2, 1.0);
         takeQuarter(matrixSrcOperand2, B, 1, 1);
 
         recMul(matrixSrcOperand1, matrixSrcOperand2, matrixDstOperand, depth + 1);
@@ -210,10 +259,10 @@ private:
         //P6
         takeQuarter(matrixSrcOperand1, A, 1, 0);
         takeQuarter(matrixSrcOperand2, A, 0, 0);
-        Matrix::Add(matrixSrcOperand1, matrixSrcOperand1, matrixSrcOperand2, -1.0);
+        AbstractMatrix::Add(matrixSrcOperand1, matrixSrcOperand1, matrixSrcOperand2, -1.0);
         takeQuarter(matrixDstOperand, B, 0, 0);
         takeQuarter(matrixSrcOperand2, B, 0, 1);
-        Matrix::Add(matrixSrcOperand2, matrixDstOperand, matrixSrcOperand2, 1.0);
+        AbstractMatrix::Add(matrixSrcOperand2, matrixDstOperand, matrixSrcOperand2, 1.0);
 
         recMul(matrixSrcOperand1, matrixSrcOperand2, matrixDstOperand, depth + 1);
         addQuarter(C, matrixDstOperand, 1, 1);
@@ -222,27 +271,27 @@ private:
         //P7
         takeQuarter(matrixSrcOperand1, A, 0, 1);
         takeQuarter(matrixSrcOperand2, A, 1, 1);
-        Matrix::Add(matrixSrcOperand1, matrixSrcOperand1, matrixSrcOperand2, -1.0);
+        AbstractMatrix::Add(matrixSrcOperand1, matrixSrcOperand1, matrixSrcOperand2, -1.0);
         takeQuarter(matrixDstOperand, B, 1, 0);
         takeQuarter(matrixSrcOperand2, B, 1, 1);
-        Matrix::Add(matrixSrcOperand2, matrixDstOperand, matrixSrcOperand2, 1.0);
+        AbstractMatrix::Add(matrixSrcOperand2, matrixDstOperand, matrixSrcOperand2, 1.0);
 
         recMul(matrixSrcOperand1, matrixSrcOperand2, matrixDstOperand, depth + 1);
         addQuarter(C, matrixDstOperand, 0, 0);
     }
 
-    void takeQuarter(Matrix& dst, Matrix& src, int row, int col) {
-        for (int i = 0; i < dst.m_N; i++) {
-            for (int j = 0; j < dst.m_N; j++) {
-                dst[i][j] = src[row * dst.m_N + i][col * dst.m_N + j];
+    void takeQuarter(AbstractMatrix& dst, AbstractMatrix& src, int row, int col) {
+        for (int i = 0; i < dst.getN(); i++) {
+            for (int j = 0; j < dst.getN(); j++) {
+                dst[i][j] = src[row * dst.getN() + i][col * dst.getN() + j];
             }
         }
     }
 
-    void addQuarter(Matrix& dst, Matrix& src, int row, int col, double sign = 1.0) {
-        for (int i = 0; i < src.m_N; i++) {
-            for (int j = 0; j < src.m_N; j++) {
-                dst[row * src.m_N + i][col * src.m_N + j] += src[i][j] * sign;
+    void addQuarter(AbstractMatrix& dst, AbstractMatrix& src, int row, int col, double sign = 1.0) {
+        for (int i = 0; i < src.getN(); i++) {
+            for (int j = 0; j < src.getN(); j++) {
+                dst[row * src.getN() + i][col * src.getN() + j] += src[i][j] * sign;
             }
         }
     }
@@ -272,44 +321,65 @@ private:
     }
 
     int getSourceMatrixSize() {
-        return m_A->m_N;
+        return m_A.getN();
+    }
+
+    static int GetNearestDegreeOf2(int n) {
+        n--;
+        for (int i = 1; i <= 32; i++) {
+            if ((n >>= 1) == 0)
+                return 1 << i;
+        }
+        return 0;
     }
 };
+
+class MatrixParser
+{
+    std::ifstream m_file;
+    int m_firstMatrixSize = -1;
+public:
+    MatrixParser(std::string filename = "in.txt")
+        : m_file(filename)
+    {}
+
+    Matrix parseMatrix() {
+        if (!m_file.is_open())
+            throw std::exception();
+        int N = m_firstMatrixSize;
+        if (N == -1) {
+            m_file >> N;
+            m_firstMatrixSize = N;
+        }
+        Matrix matrix(N);
+
+        double value;
+        int idx = 0;
+        while (idx < N * N && m_file >> value)
+        {
+            matrix[idx / N][idx % N] = value;
+            idx++;
+        }
+
+        return matrix;
+    }
+};
+
 
 int main()
 {
     system("chcp 1251");
 
-    double valuesA[8][8] = {
-        { 1.0, 0.0, 0.0, 2.0, 1.0, 0.0, 0.0, 2.0 },
-        { 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 2.0 },
-        { 20.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 2.0 },
-        { 3.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 2.0 },
-        { 3.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 2.0 },
-        { 3.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 2.0 },
-        { 3.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 2.0 },
-        { 3.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 2.0 }
-    };
-    auto A = Matrix::Create<8>(valuesA);
-    //for (int i = 0; i < A.m_N; i++) for (int j = 0; j < A.m_N; j++) A[i][j] = (i == j) ? 1.0 : 0.0;
+    MatrixParser matrixParser("in.txt");
+    Matrix A = matrixParser.parseMatrix();
+    Matrix B = matrixParser.parseMatrix();
+    Matrix C1(A.getN());
+    Matrix C2(B.getN());
+
+    printf("A:\n");
     A.print();
-
-    double valuesB[8][8] = {
-        { 1.0, 3.0, 0.0, 2.0, 1.0, 0.0, 0.0, 2.0 },
-        { 0.0, 2.0, 0.0, 0.0, 1.0, 0.0, 0.0, 2.0 },
-        { 20.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 2.0 },
-        { 3.0, 0.0, 0.0, 1.0, 2.0, 0.0, 0.0, 2.0 },
-        { 3.0, 0.0, 0.0, 1.0, 1.0, 3.0, 0.0, 3.0 },
-        { 3.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 2.0 },
-        { 3.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 2.0 },
-        { 3.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 3.0 }
-    };
-    auto B = Matrix::Create<8>(valuesB);
-    //for (int i = 0; i < B.m_N; i++) for (int j = 0; j < B.m_N; j++) B[i][j] = (i == j) ? 1.0 : 0.0;
+    printf("B:\n");
     B.print();
-
-    Matrix C1(8);
-    Matrix C2(8);
 
     Matrix::Mul(C1, A, B);
 
@@ -317,7 +387,9 @@ int main()
     StrassenAlgorithm strassenAlgorithm(&A, &B, &C2, 2);
     strassenAlgorithm.start();
     
-    printf("\nResult:");
+    printf("\nResult:\n");
+    printf("Тривиальный:\n");
     C1.print();
+    printf("Оптимизированный:\n");
     C2.print();
 }
