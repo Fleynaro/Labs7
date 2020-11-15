@@ -507,11 +507,7 @@ public:
 
     void start()
     {
-        //compareBothAlgorithms();
-        compareBothAlgorithms2();
-
-        //compareBothAlgorithmsOnSameVolumes();
-
+        compareBothAlgorithms();
         //checkOptimalParameterOfStrassen();
 
         for (auto& task : m_tasks)
@@ -520,81 +516,127 @@ public:
         wait();
     }
 
-    //сравнить результат 2-х алгоритмов
-    void compareBothAlgorithms2() {
-        m_tasks.push_back(std::thread([&]() {
-            task(10, 50, Algorithm::Simple);
-            task(5, 250, Algorithm::Simple);
-            task(5, 300, Algorithm::Simple);
-            task(5, 400, Algorithm::Simple);
-            task(5, 450, Algorithm::Simple);
-            task(1, 550, Algorithm::Simple);
-            task(1, 1024, Algorithm::Simple);
-            m_completedTestCount++;
-            }));
-        m_tasks.push_back(std::thread([&]() {
-            task(10, 50, Algorithm::Strassen, 16);
-            task(5, 250, Algorithm::Strassen, 64);
-            task(5, 300, Algorithm::Strassen, 64);
-            task(5, 400, Algorithm::Strassen, 64);
-            task(5, 450, Algorithm::Strassen, 64);
-            task(1, 550, Algorithm::Strassen, 128);
-            task(1, 1024, Algorithm::Strassen, 128);
-            m_completedTestCount++;
-            }));
-    }
-
-    //сравнить результат 2-х алгоритмов
+    //сравнить результат 3-х алгоритмов
     void compareBothAlgorithms() {
         m_tasks.push_back(std::thread([&]() {
-            task(8, 50, Algorithm::Simple);
-            task(8, 50, Algorithm::Strassen, 16);
+            task(10, 50, Algorithm::Simple);
+            task(10, 50, Algorithm::Strassen, 16);
             m_completedTestCount++;
             }));
         m_tasks.push_back(std::thread([&]() {
-            task(5, 250, Algorithm::Simple);
-            task(5, 250, Algorithm::Strassen, 64);
+            task(10, 250, Algorithm::Simple);
+            task(10, 250, Algorithm::Strassen, 64);
             m_completedTestCount++;
             }));
         m_tasks.push_back(std::thread([&]() {
-            task(1, 512, Algorithm::Simple);
-            task(1, 512, Algorithm::Strassen, 128);
+            task(10, 400, Algorithm::Simple);
+            task(10, 400, Algorithm::Strassen, 64);
             m_completedTestCount++;
             }));
         m_tasks.push_back(std::thread([&]() {
-            task(1, 1024, Algorithm::Simple);
-            task(1, 1024, Algorithm::Strassen, 128);
+            task(7, 500, Algorithm::Simple);
+            task(7, 500, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(6, 600, Algorithm::Simple);
+            task(6, 600, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(3, 700, Algorithm::Simple);
+            task(3, 700, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(3, 700, Algorithm::Simple);
+            task(3, 700, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(3, 750, Algorithm::Simple);
+            task(3, 750, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(3, 750, Algorithm::Simple);
+            task(3, 750, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(3, 800, Algorithm::Simple);
+            task(3, 800, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(3, 800, Algorithm::Simple);
+            task(3, 800, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(3, 850, Algorithm::Simple);
+            task(3, 850, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(3, 850, Algorithm::Simple);
+            task(3, 850, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(2, 900, Algorithm::Simple);
+            task(2, 900, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(2, 900, Algorithm::Simple);
+            task(2, 900, Algorithm::Strassen, 64);
             m_completedTestCount++;
             }));
     }
-
-    //Сравнить оба алгоритма на объеме 250
-    void compareBothAlgorithmsOnSameVolumes() {
-        m_tasks.push_back(std::thread([&]() {
-            task(3, 460, Algorithm::Simple);
-            //task(10, 250, Algorithm::Strassen, 64);
-            m_completedTestCount++;
-            }));
-
-        m_tasks.push_back(std::thread([&]() {
-            //task(10, 250, Algorithm::Simple);
-            task(3, 460, Algorithm::Strassen, 64);
-            m_completedTestCount++;
-            }));
-    }
-
+    
     //проверить, какая отсечка лучше всего
     void checkOptimalParameterOfStrassen() {
         m_tasks.push_back(std::thread([&]() {
-            task(5, 512, Algorithm::Strassen, 32);
+            task(5, 200, Algorithm::Strassen, 32);
+            task(5, 200, Algorithm::Strassen, 64);
+            task(5, 200, Algorithm::Strassen, 128);
             m_completedTestCount++;
             }));
         m_tasks.push_back(std::thread([&]() {
-            task(5, 512, Algorithm::Strassen, 64);
+            task(5, 300, Algorithm::Strassen, 32);
+            task(5, 300, Algorithm::Strassen, 64);
+            task(5, 300, Algorithm::Strassen, 128);
             m_completedTestCount++;
             }));
         m_tasks.push_back(std::thread([&]() {
-            task(5, 512, Algorithm::Strassen, 128);
+            task(4, 500, Algorithm::Strassen, 32);
+            task(4, 500, Algorithm::Strassen, 64);
+            task(4, 500, Algorithm::Strassen, 128);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(2, 700, Algorithm::Strassen, 32);
+            task(2, 700, Algorithm::Strassen, 64);
+            task(2, 700, Algorithm::Strassen, 128);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(2, 700, Algorithm::Strassen, 32);
+            task(2, 700, Algorithm::Strassen, 64);
+            task(2, 700, Algorithm::Strassen, 128);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 900, Algorithm::Strassen, 32);
+            task(1, 900, Algorithm::Strassen, 64);
+            task(1, 900, Algorithm::Strassen, 128);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 900, Algorithm::Strassen, 32);
+            task(1, 900, Algorithm::Strassen, 64);
+            task(1, 900, Algorithm::Strassen, 128);
             m_completedTestCount++;
             }));
     }
@@ -636,7 +678,7 @@ int main()
 {
     system("chcp 1251");
 
-    TestLoggerCSV testLoggerCSV("matrix_mul_tests.csv");
+    TestLoggerCSV testLoggerCSV("tests.csv");
 
     MatrixParser matrixParser("in.txt");
     Matrix A = matrixParser.parseMatrix();
