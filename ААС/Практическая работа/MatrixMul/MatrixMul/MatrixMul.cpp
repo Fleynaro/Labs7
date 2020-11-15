@@ -424,7 +424,7 @@ public:
         if (!m_file.is_open())
             throw std::exception();
         m_file.clear();
-        m_file << "V" << "," << "testId" << "," << "algorithmId" << "," << "caseId" << "," << "time" << endl;
+        m_file << "V" << "," << "testId" << "," << "algorithmId" << "," << "boundary" << "," << "time" << endl;
     }
 
     ~TestLoggerCSV() {
@@ -508,9 +508,9 @@ public:
     void start()
     {
         //compareBothAlgorithms();
-        //compareBothAlgorithms2();
+        compareBothAlgorithms2();
 
-        compareBothAlgorithmsOnSameVolumes();
+        //compareBothAlgorithmsOnSameVolumes();
 
         //checkOptimalParameterOfStrassen();
 
@@ -523,16 +523,22 @@ public:
     //сравнить результат 2-х алгоритмов
     void compareBothAlgorithms2() {
         m_tasks.push_back(std::thread([&]() {
-            task(8, 50, Algorithm::Simple);
+            task(10, 50, Algorithm::Simple);
             task(5, 250, Algorithm::Simple);
-            task(1, 512, Algorithm::Simple);
+            task(5, 300, Algorithm::Simple);
+            task(5, 400, Algorithm::Simple);
+            task(5, 450, Algorithm::Simple);
+            task(1, 550, Algorithm::Simple);
             task(1, 1024, Algorithm::Simple);
             m_completedTestCount++;
             }));
         m_tasks.push_back(std::thread([&]() {
-            task(8, 50, Algorithm::Strassen, 16);
+            task(10, 50, Algorithm::Strassen, 16);
             task(5, 250, Algorithm::Strassen, 64);
-            task(1, 512, Algorithm::Strassen, 128);
+            task(5, 300, Algorithm::Strassen, 64);
+            task(5, 400, Algorithm::Strassen, 64);
+            task(5, 450, Algorithm::Strassen, 64);
+            task(1, 550, Algorithm::Strassen, 128);
             task(1, 1024, Algorithm::Strassen, 128);
             m_completedTestCount++;
             }));
@@ -630,7 +636,7 @@ int main()
 {
     system("chcp 1251");
 
-    TestLoggerCSV testLoggerCSV("tests.csv");
+    TestLoggerCSV testLoggerCSV("matrix_mul_tests.csv");
 
     MatrixParser matrixParser("in.txt");
     Matrix A = matrixParser.parseMatrix();

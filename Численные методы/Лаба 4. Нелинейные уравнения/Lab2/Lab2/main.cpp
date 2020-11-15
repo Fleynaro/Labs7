@@ -617,7 +617,7 @@ void GradientDescentMethod(double* vectorX, FuncType F[2], FuncType Der[2], Func
     double lamda = 0.5;
     double error = 0.0;
     printIterHeader2();
-    
+
     for (int i = 0; i < 2; i++) {
         vectorDer[i] = Der[i](vectorX);
     }
@@ -663,60 +663,59 @@ int main()
     //система уравнений
     FuncType F[2] = {
         [](double* vectorX) {
-            return 1 - sin(vectorX[1] + 0.5) + vectorX[0];
+            return sin(vectorX[0] + 1) - vectorX[1] - 1;
         },
 
         [](double* vectorX) {
-            return cos(vectorX[0] - 2) + vectorX[1];
+            return 2 * vectorX[0] + cos(vectorX[1]) - 2;
         }
     };
 
-    double* vectorX0 = new double[2]{ -0.1, 0.5 };
+    double* vectorX0 = new double[2]{ 0.5, 0.0 };
     double* vectorX = new double[2];
 
-    printf("Вариант №15\n\n");
+    printf("Вариант №21\n\n");
     printf("x0 = %.3f y0 = %.3f\n\n", vectorX0[0], vectorX0[1]);
 
 
 
     printf(" Метод простой итерации\n");
 
-    printf("Fi1(x,y)=-1+sin(y+0.5)\n");
-    printf("Fi2(x,y)=-c0s(x-2)\n");
+    printf("Fi1(x,y)=sin(x+1)-1\n");
+    printf("Fi2(x,y)=1-cos(y)/2\n");
 
     printf("Якобиан\n");
-    printf("0.0  ; cos(y+0.5)\n");
-    printf("sin(x - 2);  0.0\n");
+    printf("cos(x+1)\t0\n");
+    printf("0\tsin(y)/2\n");
     printf("\nзначение\n");
 
     //векторная функция фи
     FuncType Fi[2] = {
-        [&](double* vectorX) {
-            return -F[0](vectorX) + vectorX[0];
+        [](double* vectorX) {
+            return 1.0 - cos(vectorX[1]) / 2.0;
         },
-
-        [&](double* vectorX) {
-            return -F[1](vectorX) + vectorX[1];
-        },
+        [](double* vectorX) {
+            return sin(vectorX[0] + 1.0) - 1.0;
+        }
     };
 
     //якобиан
     FuncType Jacobian[2][2] = {
         {
             [](double* vectorX) {
-                return 0;
+                return cos(vectorX[0] + 1.0);
             },
             [](double* vectorX) {
-                return cos(vectorX[1] + 0.5);
+                return 0;
             }
         },
 
         {
             [](double* vectorX) {
-                return sin(vectorX[0] - 2);
+                return 0;
             },
             [](double* vectorX) {
-                return 0;
+                return sin(vectorX[1]) / 2.0;
             }
         },
     };
@@ -731,34 +730,34 @@ int main()
     printMatrix(calcJacobian, 2);
 
     double euclidNorm = computEuclidNorm(calcJacobian, trCalcJacobian, 2);
-    printf("Norma = %.5f\n", euclidNorm);
+    printf("Евклидова норма = %.5f\n", euclidNorm);
     copyVectorToVector(vectorX0, vectorX, 2);
     //метод простой итерации
     SimpleIterationMethod(calcJacobian, trCalcJacobian, vectorX, F, Fi, Jacobian);
 
     printf("\n\nМетод Ньютона\n\n");
     printf("Матрица производных\n");
-    printf("1.0\t-cos(y+0.5)\n");
-    printf("-sin(x-2)\t1.0\n\n");
+    printf("cos(x+1)\t-1\n");
+    printf("2\t-sin(y)\n\n");
 
     //матрица производных
     FuncType Derivative[2][2] = {
         {
             [](double* vectorX) {
-                return 1.0;
+                return cos(vectorX[0] + 1.0);
             },
             [](double* vectorX) {
-                return -cos(vectorX[1] + 0.5);
+                return -1.0;
             }
         },
 
         {
             [](double* vectorX) {
-                return -sin(vectorX[0] - 2.0);
+                return 2.0;
             },
 
             [](double* vectorX) {
-                return 1.0;
+                return -sin(vectorX[1]);
             }
         }
     };
@@ -776,7 +775,7 @@ int main()
     FuncType optF = [&](double* vectorX) {
         return pow(F[0](vectorX), 2) + pow(F[1](vectorX), 2);
     };
-    
+
     //вычисление производной суммы квадратов компонент вектора-функции F
     FuncType Der[2] = {
         [&](double* vectorX) {

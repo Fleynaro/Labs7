@@ -134,10 +134,10 @@ namespace ExtModule
 
         private void OnPluginListClick(object sender, EventArgs e)
         {
-            string info = "";
+            string info = "Список загруженных плагинов:\n";
             foreach (var plugin in plugins)
             {
-                info += plugin.Value.plugin.Name + " (Author: "+ plugin.Value.plugin.Author + " | Version: "+ plugin.Value.version.Major + "." + plugin.Value.version.Minor + ")\n";
+                info += "- " + plugin.Value.plugin.Name + " (Author: "+ plugin.Value.plugin.Author + " | Version: "+ plugin.Value.version.Major + "." + plugin.Value.version.Minor + ")\n";
             }
             MessageBox.Show(info);
         }

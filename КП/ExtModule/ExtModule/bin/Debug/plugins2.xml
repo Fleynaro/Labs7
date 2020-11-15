@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugins loading="manual">
+  <plugin path="PluginContrast.dll"/>
+</plugins>
