@@ -300,6 +300,309 @@ private:
 	}
 };
 
+class LUDecomposition
+{
+	double** L, ** U;
+	int* P;
+	double sign;
+public:
+	int size;
+	LUDecomposition(double** const matrix, const int size)
+	{
+		sign = 1.0;
+		this->size = size;
+		P = new int[size];
+		L = new double* [size];
+		U = new double* [size];
+		for (size_t i = 0; i < size; i++)
+		{
+			L[i] = new double[size];
+			U[i] = new double[size];
+		}
+		copyMatrixToMatrix(matrix, U, size);
+		//иницилизируем подстановку P
+		for (int i = 0; i < size; i++) {
+			P[i] = i;
+		}
+		for (int k = 0; k < size; k++) {
+			auto rowIdx = defineRowIdxWithMainValue(U, k, size);
+			if (k != rowIdx) {
+				//Смена строк
+				swap(U[k], U[rowIdx]);
+				swap(L[k], L[rowIdx]);
+				swap(P[k], P[rowIdx]);
+				sign *= -1.0;
+			}
+
+			//главный элемент
+			double mainValue = U[k][k];
+			//if (abs(mainValue) < minValue) {
+			//	//Определяем ранг матрицы
+			//	rank = k;
+			//	return;
+			//}
+			//заполняем матрицу L
+			for (int i = k; i < size; i++) {
+				L[i][k] = U[i][k];
+			}
+
+			for (int j = k; j < size; j++) {
+				U[k][j] /= mainValue;
+			}
+			//заполняем матрицу U
+			for (int i = k + 1; i < size; i++) {
+				for (int j = k; j < size; j++) {
+					U[i][j] = U[i][j] - L[i][k] * U[k][j];
+				}
+			}
+		}
+	}
+	~LUDecomposition()
+	{
+		for (size_t i = 0; i < size; i++)
+		{
+			delete[] L[i], U[i];
+		}
+		delete[] P, L, U;
+	}
+	//Решение уравнения Ax = b, то есть LUx = Pb
+	void SolveSOLE(double* X, double* B) {
+		//Ax = b (A = PLU)
+		//LUx = Pb (Ux = y)
+		//Ly = Pb
+		double* vectorY = new double[size];
+		//"умножаем" вектор b на матрицу перестановок
+		double* vectorPB = new double[size];
+		for (int i = 0; i < size; i++) {
+			vectorPB[i] = B[P[i]];
+		}
+		SolveLy(L, vectorY, vectorPB, size);
+		//printVector(Y, N);
+		SolveUx(U, X, vectorY, size);
+	}
+	//Получение обратной матрицы
+	void SolveBackwardMatrix(double** X) {
+		//LUX = PE
+		double* vectorX = new double[size];
+		double* vectorE = new double[size];
+		for (int t = 0; t < size; t++) {
+			vectorE[t] = 0.0;
+		}
+		for (int i = 0; i < size; i++) {
+			//формируем вектор Ei
+			if (i != 0) {
+				vectorE[i - 1] = 0.0;
+			}
+			vectorE[i] = 1.0;
+
+			//получаем вектор-столбец X
+			SolveSOLE(vectorX, vectorE);
+			//записываем его в матрицу X
+			for (int t = 0; t < size; t++) {
+				X[t][i] = vectorX[t];
+			}
+		}
+	}
+private:
+	//определить строку с главным элементом (который максимален в текущем столбце)
+	int defineRowIdxWithMainValue(double** matrix, int k, int N) {
+		int m = k;
+		double maxValue = 0.0;
+		for (int i = k; i < N; i++) {
+			if (abs(matrix[i][k]) > maxValue) {
+				m = i;
+				maxValue = abs(matrix[m][k]);
+			}
+		}
+		return m;
+	}
+	void copyMatrixToMatrix(double** srcMatrix, double** dstMatrix, int N) {
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				dstMatrix[i][j] = srcMatrix[i][j];
+			}
+		}
+	}
+	//Решение уравнения Ly = Pb
+	void SolveLy(double** triangleMatrix, double* X, double* B, int N) {
+		for (int i = 0; i < N; i++) {
+			X[i] = B[i] / triangleMatrix[i][i];
+			for (int j = 0; j < i; j++) {
+				X[i] -= X[j] * triangleMatrix[i][j] / triangleMatrix[i][i];
+			}
+		}
+	}
+	//Решение уравнения Ux = y
+	void SolveUx(double** triangleMatrix, double* X, double* B, int N) {
+		for (int i = N - 1; i >= 0; i--) {
+			X[i] = B[i];
+			for (int j = N - 1; j > i; j--) {
+				X[i] -= X[j] * triangleMatrix[i][j];
+			}
+		}
+	}
+};
+
+class RmsApproximation
+{
+	using FuncType = std::function<double(double)>;
+	double* m_fg; //столбец свободных членов
+	double* m_c;
+	double* m_f;
+	double** m_gg; //матрица
+	int m_vector_size;
+	double m_step = 0.2;
+	double normError = 0;
+	double m_a, m_b; //концы отрезка
+	FuncType m_gVector[3] = {
+		[](double x) {
+			return 1;
+		},
+		[](double x) {
+			return x;
+		},
+		[](double x) {
+			return x * x;
+		}
+	};
+public:
+	//Дискретный вариант
+	RmsApproximation(FuncType function, double a, double b)
+	{
+		m_a = a;
+		m_b = b;
+		m_vector_size = 3;
+		m_c = new double[m_vector_size];
+		m_fg = new double[m_vector_size];
+		//Свободные члены (f,g)
+		for (size_t i = 0; i < m_vector_size; i++)
+		{
+			double sum = 0;
+			for (double x = m_a; x <= m_b; x += m_step)
+			{
+				sum += function(x) * m_gVector[i](x);
+			}
+			m_fg[i] = sum;
+		}
+		//Создание матрицы
+		m_gg = new double* [m_vector_size];
+		for (size_t i = 0; i < m_vector_size; i++)
+		{
+			m_gg[i] = new double[m_vector_size];
+		}
+		//Ее заполнение (g,g)
+		for (size_t i = 0; i < m_vector_size; i++)
+		{
+			for (size_t j = 0; j < m_vector_size; j++)
+			{
+				double sum = 0;
+				for (double x = m_a; x <= m_b; x += m_step)
+				{
+					sum += m_gVector[i](x) * m_gVector[j](x);
+				}
+				m_gg[i][j] = sum;
+			}
+		}
+
+		m_f = new double[1.0 / m_step + 1];
+		double x = m_a;
+		for (size_t i = 0; i < 1.0 / m_step + 1; i++)
+		{
+			m_f[i] = function(x);
+			x += m_step;
+		}
+	}
+	//Непрерывный вариант
+	RmsApproximation(double gg[3][3], double fg[3])
+	{
+		m_a = 2;
+		m_b = 1;
+		m_vector_size = 3;
+		m_c = new double[m_vector_size];
+		m_fg = new double[m_vector_size];
+		for (size_t i = 0; i < m_vector_size; i++)
+		{
+			m_fg[i] = fg[i];
+		}
+		m_gg = new double* [m_vector_size];
+		for (size_t i = 0; i < m_vector_size; i++)
+		{
+			m_gg[i] = new double[m_vector_size];
+		}
+		for (size_t i = 0; i < m_vector_size; i++)
+		{
+			for (size_t j = 0; j < m_vector_size; j++)
+			{
+				m_gg[i][j] = gg[i][j];
+			}
+		}
+	}
+	~RmsApproximation()
+	{
+		for (size_t i = 0; i < m_vector_size; i++)
+		{
+			delete[] m_gg[i];
+		}
+		delete[] m_gg, m_fg, m_c, m_f;
+	}
+	void GetSolve()
+	{
+		LUDecomposition LUdec(m_gg, m_vector_size);
+		LUdec.SolveSOLE(m_c, m_fg);
+	}
+	//Дискретный вариант
+	void GetNormError()
+	{
+		//Погрешность
+		FuncType fun_G = [&](double x) {
+			return m_c[0] + (m_c[1] * x) + (m_c[2] * x * x);
+		};
+		double G = 0;
+		for (double x = m_a; x < m_b; x += m_step)
+		{
+			G += pow(fun_G(x), 2);
+		}
+		double F = 0;
+		for (size_t i = 0; i < 1.0 / m_step + 1; i++)
+		{
+			F += m_f[i] * m_f[i];
+		}
+		normError = sqrt(F - G);
+	}
+	//Непрерывный вариант
+	void GetNormError(double ff, double gg)
+	{
+		normError = sqrt(abs(ff - gg));
+	}
+	void PrintSolve()
+	{
+		printf("Матрица\n");
+		for (size_t i = 0; i < m_vector_size; i++)
+		{
+			for (size_t j = 0; j < m_vector_size; j++)
+			{
+				cout << fixed << setw(10) << setprecision(5) << m_gg[i][j] << "\t";
+			}
+			cout << endl;
+		}
+		printf("\nВектор правых частей\n");
+		for (size_t i = 0; i < m_vector_size; i++)
+		{
+			printf("%.13f\t", m_fg[i]);
+		}
+		printf("\n\nP2(x) = (%.5f) + (%.5f)*x + (%.5f)*x^2\n", m_c[0], m_c[1], m_c[2]);
+		printf("Норма погрешности: %.16f\n", normError);
+	}
+
+	double getIntegralOfG2(double x) {
+		return pow(m_c[2], 2) * pow(x, 5) / 5 +
+			m_c[1] * m_c[2] * pow(x, 4) / 2 +
+			(pow(m_c[1], 2) + 2 * m_c[0] * m_c[2]) * pow(x, 3) / 3 +
+			m_c[0] * m_c[1] * pow(x, 2) +
+			pow(m_c[0], 2) * x;
+	}
+};
+
 int main()
 {
 	system("chcp 1251");
@@ -339,9 +642,9 @@ int main()
 		for (int i = 0; i <= N; i++)
 			w *= x - nodeTable.m_x_nodes(i);
 		double deltaEst = w * M6 / 720;
-		table.printTableRow({ x, func.m_func(x), Pn, abs(func.m_func(x)- Pn), abs(deltaEst) });
+		table.printTableRow({ x, func.m_func(x), Pn, abs(func.m_func(x) - Pn), abs(deltaEst) });
 	}
-	
+
 	printf("\nИнтерполяция кубическим сплайном\n");
 	SplineInterpolation splineInterpolation(func, nodeTable);
 
@@ -367,17 +670,33 @@ int main()
 		double deltaEst;
 		double S31 = splineInterpolation.interpolate(x, &deltaEst, M4, M5);
 		double h = nodeTable.getH(0);
-		double deltaEst2 = (M4 / 384 + M5 * h / 240)* pow(h, 4); //deltaEst < deltaEst2
+		double deltaEst2 = (M4 / 384 + M5 * h / 240) * pow(h, 4); //deltaEst < deltaEst2
 		table3.printTableRow({ x, func.m_func(x), S31, abs(func.m_func(x) - S31), deltaEst });
 	}
 
+	printf("\nСреднеквадратичное приближение\n\n");
+	RmsApproximation disRms(func.m_func, 1, 2);
+	disRms.GetSolve();
+	disRms.GetNormError();
+	printf("Дискретный вариант\n");
+	disRms.PrintSolve();
 
-
-
-	//2 пункт лабы ...
-
-
-
+	double fg[3] = {
+		(5. * log(3) + 4.) / (2. * log(3)),
+		(11. * pow(log(3), 2) + 15. * log(3) - 6) / (3 * pow(log(3), 2)),
+		(67. * pow(log(3), 3) + 132. * pow(log(3), 2) - 120. * log(3) + 48.) / (12. * pow(log(3),3))
+	};
+	double gg[3][3] = {
+		{1., 3. / 2., 7. / 3.},
+		{3. / 2., 7. / 3., 15. / 4.},
+		{7. / 3., 15. / 4., 31. / 5.}
+	};
+	//double f[6] = { func.m_func(1.0), func.m_func(1.2), func.m_func(1.4), func.m_func(1.6), func.m_func(1.8), func.m_func(2.0), };
+	RmsApproximation contRms(gg, fg);
+	contRms.GetSolve();
+	contRms.GetNormError(18.74986739836260, contRms.getIntegralOfG2(B) - contRms.getIntegralOfG2(A));
+	printf("\nНепрерывный вариант\n");
+	contRms.PrintSolve();
 
 	printf("\nРешение уравнения методом обратной интерполяции\n");
 	//выбираем отрезок [a, b], где находится предполагаемый корень, а также выбираем n отрезков разбиения

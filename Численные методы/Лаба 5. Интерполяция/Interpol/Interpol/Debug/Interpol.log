@@ -1,2 +1,17 @@
 ﻿  main.cpp
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(317,24): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(362,24): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(478,24): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(489,24): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(494,24): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(496,25): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(507,33): warning C4244: 'initializing': conversion from 'double' to 'unsigned int', possible loss of data
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(523,24): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(528,24): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(532,24): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(534,25): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(542,24): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(580,24): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(582,25): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Interpol\main.cpp(589,24): warning C4018: '<': signed/unsigned mismatch
   Interpol.vcxproj -> R:\Labs7\Численные методы\Лаба 5. Интерполяция\Interpol\Debug\Interpol.exe
