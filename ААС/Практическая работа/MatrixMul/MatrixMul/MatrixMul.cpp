@@ -507,13 +507,70 @@ public:
 
     void start()
     {
-        compareBothAlgorithms();
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 2000, Algorithm::Simple);
+            m_completedTestCount++;
+            }));
+        //compareBothAlgorithmsBigData();
+        //compareBothAlgorithms();
         //checkOptimalParameterOfStrassen();
 
         for (auto& task : m_tasks)
             task.detach();
 
         wait();
+    }
+
+    //сравнить результат 3-х алгоритмов на больших данных
+    void compareBothAlgorithmsBigData() {
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 1000, Algorithm::Simple);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 1200, Algorithm::Simple);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 1300, Algorithm::Simple);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 1000, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 1200, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 1300, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 1500, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 1800, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 2000, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 2300, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 2700, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 4500, Algorithm::Strassen, 64);
+            m_completedTestCount++;
+            }));
     }
 
     //сравнить результат 3-х алгоритмов
