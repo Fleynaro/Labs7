@@ -613,14 +613,14 @@ int main()
 
 	//функция и её производная
 	Function func(
-		[](double x) { return pow(3, x - 1) + 4 - x; },
-		[](double x) { return pow(3, x - 1) * log(3) - 1; }
+		[](double x) { return pow(3, x) + 2 - x; },
+		[](double x) { return pow(3, x) * log(3) - 1; }
 	);
 
 	//максимальная производная n-ого порядка функции f на отрезке [1, 2] (нужна для формулы оценки интерполяции)
-	double M6 = 5.2745810; //6 порядка
-	double M5 = 4.8011306; //5 порядка
-	double M4 = 4.3701774; //4 порядка
+	double M6 = 15.824; //6 порядка
+	double M5 = 14.403; //5 порядка
+	double M4 = 13.111; //4 порядка
 
 	printf("Интерполяционная формула Ньютона\n");
 	auto nodesX = [&](int i) { return A + i * (B - A) / N; };
@@ -682,9 +682,9 @@ int main()
 	disRms.PrintSolve();
 
 	double fg[3] = {
-		(5. * log(3) + 4.) / (2. * log(3)),
-		(11. * pow(log(3), 2) + 15. * log(3) - 6) / (3 * pow(log(3), 2)),
-		(67. * pow(log(3), 3) + 132. * pow(log(3), 2) - 120. * log(3) + 48.) / (12. * pow(log(3),3))
+		5.96143535976102,
+		9.349042367927889,
+		15.148483258152980
 	};
 	double gg[3][3] = {
 		{1., 3. / 2., 7. / 3.},
@@ -694,7 +694,7 @@ int main()
 	//double f[6] = { func.m_func(1.0), func.m_func(1.2), func.m_func(1.4), func.m_func(1.6), func.m_func(1.8), func.m_func(2.0), };
 	RmsApproximation contRms(gg, fg);
 	contRms.GetSolve();
-	contRms.GetNormError(18.74986739836260, contRms.getIntegralOfG2(B) - contRms.getIntegralOfG2(A));
+	contRms.GetNormError(37.5829, contRms.getIntegralOfG2(B) - contRms.getIntegralOfG2(A));
 	printf("\nНепрерывный вариант\n");
 	contRms.PrintSolve();
 
@@ -703,7 +703,7 @@ int main()
 	int n = 5;
 	double a = 1.0;
 	double b = 2.0;
-	double c = 4.2321; //правая часть уравнения f(x) = c
+	double c = func.m_func(1.5); //правая часть уравнения f(x) = c
 	auto nodesX2 = [&](int i) { return a + i * (b - a) / n; };
 	auto nodesY2 = [&](int i) { return func.m_func(nodesX2(i)); };
 	NodeTable nodeTable2(n, nodesY2, nodesX2); //наоборот

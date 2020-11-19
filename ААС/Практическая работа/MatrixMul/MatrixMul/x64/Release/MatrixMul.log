@@ -1,7 +1,7 @@
 ﻿  MatrixMul.cpp
   Generating code
-  440 of 814 functions (54.1%) were compiled, the rest were copied from previous compilation.
-    436 functions were new in current compilation
+  33 of 407 functions ( 8.1%) were compiled, the rest were copied from previous compilation.
+    29 functions were new in current compilation
     3 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   MatrixMul.vcxproj -> R:\Labs7\ААС\Практическая работа\MatrixMul\x64\Release\MatrixMul.exe
