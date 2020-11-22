@@ -507,12 +507,8 @@ public:
 
     void start()
     {
-        m_tasks.push_back(std::thread([&]() {
-            task(1, 2000, Algorithm::Simple);
-            m_completedTestCount++;
-            }));
-        //compareBothAlgorithmsBigData();
-        //compareBothAlgorithms();
+        compareBothAlgorithms();
+        compareBothAlgorithmsBigData();
         //checkOptimalParameterOfStrassen();
 
         for (auto& task : m_tasks)
@@ -533,6 +529,18 @@ public:
             }));
         m_tasks.push_back(std::thread([&]() {
             task(1, 1300, Algorithm::Simple);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 1500, Algorithm::Simple);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 1800, Algorithm::Simple);
+            m_completedTestCount++;
+            }));
+        m_tasks.push_back(std::thread([&]() {
+            task(1, 2000, Algorithm::Simple);
             m_completedTestCount++;
             }));
         m_tasks.push_back(std::thread([&]() {
@@ -565,10 +573,6 @@ public:
             }));
         m_tasks.push_back(std::thread([&]() {
             task(1, 2700, Algorithm::Strassen, 64);
-            m_completedTestCount++;
-            }));
-        m_tasks.push_back(std::thread([&]() {
-            task(1, 4500, Algorithm::Strassen, 64);
             m_completedTestCount++;
             }));
     }
