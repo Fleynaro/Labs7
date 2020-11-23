@@ -157,25 +157,28 @@ public:
 
 		double err = 100000.0;
 		double k;
+		double sum = 0.0; //сумма старых вершин
 		do {
 			N *= 2;
 			h /= 2.0;
-
-			auto sum = sum0;
+			
+			//сумма значений в новых вершинах с множителем 4
+			auto sum1 = 0.0;
 			for (int i = 1; i < N; i += 2) {
-				sum += 4.0 * m_func->func(m_interval.m_A + i * h);
+				sum1 += 4.0 * m_func->func(m_interval.m_A + i * h);
 			}
+			Sh2 = h * (sum0 + sum / 2.0 + sum1) / 3; //делим на 2 сумму значений в старых вершинах
+			sum += sum1;
 
-			for (int i = 2; i < N; i += 2) {
-				sum += 2.0 * m_func->func(m_interval.m_A + i * h);
-			}
-
-			Sh2 = h * sum / 3;
-
-			if (Sh0 != -1 && Sh1 != -1) {
+			if (Sh1 != -1) {
 				err = (Sh2 - Sh1) / 15.0;
-				k = log((Sh2 - Sh0) / (Sh1 - Sh0) - 1) / log(0.5);
-				m_outTable->printTableRow(N / 2, { h, Sh2, err, k });
+				if (Sh0 != -1) {
+					k = log((Sh2 - Sh0) / (Sh1 - Sh0) - 1) / log(0.5);
+					m_outTable->printTableRow(N / 2, { h, Sh2, err, k });
+				}
+				else {
+					m_outTable->printTableRow(N / 2, { h, Sh2, err });
+				}
 			}
 			else {
 				m_outTable->printTableRow(N / 2, { h, Sh2 });
@@ -189,6 +192,72 @@ public:
 	}
 };
 
+//Метод гаусса-3
+class GaussMethod
+{
+	Function* m_func;
+	Interval m_interval;
+	Table* m_outTable;
+	double m_eps = 0.000000001;
+public:
+	GaussMethod(Function* func, Interval interval, Table* outTable)
+		: m_func(func), m_interval(interval), m_outTable(outTable)
+	{}
+
+	double calculate() {
+		double Sh0 = -1; //сумма на предпредыдущем шаге
+		double Sh1 = -1; //сумма на предыдущем шаге
+		double Sh2; //сумма на текущем шаге
+
+		int N = 1;
+		double h = m_interval.m_B - m_interval.m_A;
+		
+		double err = 100000.0;
+		double k;
+		
+		do {
+			auto sum = 0.0;
+			for (int i = 0; i < N; i ++) {
+				double a = m_interval.m_A + h * i;
+				double b = a + h;
+
+				double x_left = linearTransformation(-sqrt(3.0 / 5.0), a, b);
+				double x_center = linearTransformation(0.0, a, b);
+				double x_right = linearTransformation(sqrt(3.0 / 5.0), a, b);
+				sum += 5.0 * (m_func->func(x_left) + m_func->func(x_right)) + 8.0 * m_func->func(x_center);
+			}
+			Sh2 = h * sum / (2.0 * 9.0);
+
+			if (Sh1 != -1) {
+				err = (Sh2 - Sh1) / 63.0;
+				if (Sh0 != -1) {
+					k = log((Sh2 - Sh0) / (Sh1 - Sh0) - 1) / log(0.5);
+					m_outTable->printTableRow(N, { h, Sh2, err, k });
+				}
+				else {
+					m_outTable->printTableRow(N, { h, Sh2, err });
+				}
+			}
+			else {
+				m_outTable->printTableRow(N, { h, Sh2 });
+			}
+
+			N *= 2;
+			h /= 2.0;
+			Sh0 = Sh1;
+			Sh1 = Sh2;
+		} while (abs(err / Sh2) >= m_eps);
+
+		return Sh2;
+	}
+
+private:
+	//линейное преобразование из [-1, 1] в отрезок [a, b] для точки x
+	double linearTransformation(double x, double a, double b) {
+		return ((1 - x) * a + (1 + x) * b) / 2.0;
+	}
+};
+
 
 int main()
 {
@@ -199,14 +268,22 @@ int main()
 	interval.m_B = 2.0;
 
 	//функция и её n-ая производная
-	Function func(
+	Function func21(
 		[](double x) { return pow(2, x) + 2 - 3 * x; },
 		[](double x, int n) { return pow(2, x) * pow(log(2), n) + (n == 1 ? -1 : 0); }
 	);
 
+	Function func25(
+		[](double x) { return pow(3, x) + 2 - x; },
+		[](double x, int n) { return pow(3, x) * log(3) - 1; }
+	);
+
+	Function func = func21; //указать функцию (вариант)
+
+
 	Table table({ "h", "Integral", "Оценка. погр.", "k" }, { 4, 6, 17, 5 });
 
-
+	//1
 	printf("Формула трапеций 0\n");
 	table.printTableHeader();
 	TrapezMethod trapezMethod(&func, interval, false, &table);
@@ -214,6 +291,7 @@ int main()
 	printf("Результат %.15f\nKobr = %i\n", result, func.m_callingCount);
 	func.m_callingCount = 0;
 
+	//2
 	printf("Формула трапеций 1\n");
 	table.printTableHeader();
 	TrapezMethod trapezMethodMod(&func, interval, true, &table);
@@ -221,10 +299,19 @@ int main()
 	printf("Результат %.15f\nKobr = %i\n", result, func.m_callingCount);
 	func.m_callingCount = 0;
 
+	//3
 	printf("Формула Симпсона\n");
 	table.printTableHeader();
 	SimpsonMethod simpsonMethod(&func, interval, &table);
 	result = simpsonMethod.calculate();
+	printf("Результат %.15f\nKobr = %i\n", result, func.m_callingCount);
+	func.m_callingCount = 0;
+
+	//4
+	printf("Формула Гауса-3\n");
+	table.printTableHeader();
+	GaussMethod gaussMethod(&func, interval, &table);
+	result = gaussMethod.calculate();
 	printf("Результат %.15f\nKobr = %i\n", result, func.m_callingCount);
 	func.m_callingCount = 0;
 }
