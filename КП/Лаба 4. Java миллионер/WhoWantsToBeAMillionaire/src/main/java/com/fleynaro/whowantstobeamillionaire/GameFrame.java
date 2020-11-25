@@ -9,6 +9,11 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -27,8 +32,10 @@ public class GameFrame extends javax.swing.JFrame {
      */
     public GameFrame() {
         initComponents();
+        ReadDataBase();
         
-        ReadFile();
+        //ReadFile();
+        //WriteDataBase();
         startGame();
     }
 
@@ -179,8 +186,7 @@ public class GameFrame extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(lstLevel, javax.swing.GroupLayout.PREFERRED_SIZE, 265, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblQuestionText, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblQuestionText, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(30, 30, 30)
@@ -332,6 +338,66 @@ public class GameFrame extends javax.swing.JFrame {
             }
         } catch (IOException e) {
             System.out.println("Ошибка");
+        }
+    }
+    
+    //чтение вопросов из БД
+    private void ReadDataBase()
+    {
+        try{
+            Class.forName("org.sqlite.JDBC");
+            Connection conn = DriverManager.getConnection("jdbc:sqlite:R:\\Labs7\\КП\\Лаба 4. Java миллионер\\questions.db");
+
+            Statement statmt = conn.createStatement();
+            String query = "SELECT * FROM questions";
+
+            ResultSet resSet = statmt.executeQuery(query);
+
+            while (resSet.next()) {
+                String[] info = new String[] {
+                    resSet.getString(1),
+                    resSet.getString(2),
+                    resSet.getString(3),
+                    resSet.getString(4),
+                    resSet.getString(5),
+                    resSet.getString(6),
+                    resSet.getString(7)
+                };
+                questions.add(new Question(info));
+            }
+
+            resSet.close();
+            conn.close();
+
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
+        }
+
+    }
+    
+    //записать вопросы
+    private void WriteDataBase()
+    {
+        try{
+            Class.forName("org.sqlite.JDBC");
+            Connection conn = DriverManager.getConnection("jdbc:sqlite:R:\\Labs7\\КП\\Лаба 4. Java миллионер\\questions.db");
+
+            for (Question question : questions) {
+                PreparedStatement sql = (PreparedStatement) conn.prepareStatement("INSERT INTO questions VALUES (?, ?, ?, ?, ?, ?, ?)");
+                sql.setString(1, question.Text);
+                sql.setString(2, question.Answers[0]);
+                sql.setString(3, question.Answers[1]);
+                sql.setString(4, question.Answers[2]);
+                sql.setString(5, question.Answers[3]);
+                sql.setString(6, question.RightAnswer);
+                sql.setString(7, String.valueOf(question.Level));
+                sql.execute();
+            }
+            
+            conn.close();
+
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
         }
     }
     
