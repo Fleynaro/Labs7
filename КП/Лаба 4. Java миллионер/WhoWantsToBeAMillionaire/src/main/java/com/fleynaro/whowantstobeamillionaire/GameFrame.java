@@ -5,6 +5,7 @@
  */
 package com.fleynaro.whowantstobeamillionaire;
 
+import static com.fleynaro.whowantstobeamillionaire.Solver1.shootMethod;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,11 +33,7 @@ public class GameFrame extends javax.swing.JFrame {
      */
     public GameFrame() {
         initComponents();
-        ReadDataBase();
-        
-        //ReadFile();
-        //WriteDataBase();
-        startGame();
+        Solver1.shootMethod();
     }
 
     /**
