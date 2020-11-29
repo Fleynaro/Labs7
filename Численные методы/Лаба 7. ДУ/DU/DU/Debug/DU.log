@@ -1,2 +1,11 @@
 ﻿  DU.cpp
+R:\Labs7\Численные методы\Лаба 7. ДУ\DU\DU\DU.cpp(286,21): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 7. ДУ\DU\DU\DU.cpp(294,22): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 7. ДУ\DU\DU\DU.cpp(308,20): warning C4018: '<=': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 7. ДУ\DU\DU\DU.cpp(324,20): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 7. ДУ\DU\DU\DU.cpp(346,20): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 7. ДУ\DU\DU\DU.cpp(351,13): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 7. ДУ\DU\DU\DU.cpp(356,20): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 7. ДУ\DU\DU\DU.cpp(366,21): warning C4018: '<': signed/unsigned mismatch
+R:\Labs7\Численные методы\Лаба 7. ДУ\DU\DU\DU.cpp(371,21): warning C4018: '<': signed/unsigned mismatch
   DU.vcxproj -> R:\Labs7\Численные методы\Лаба 7. ДУ\DU\Debug\DU.exe

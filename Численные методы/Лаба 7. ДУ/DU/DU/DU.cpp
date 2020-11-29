@@ -98,6 +98,7 @@ public:
 class DiffEqSolver
 {
 public:
+	//Таблица результата решения ДУ
 	struct Table
 	{
 		vector<double> m_x;
@@ -105,16 +106,19 @@ public:
 		vector<double> m_z;
 		double m_maxErr = 0.0;
 
+		//добавляем новый элемент
 		void add(double x, double y, double z) {
 			m_x.push_back(x);
 			m_y.push_back(y);
 			m_z.push_back(z);
 		}
 
+		//получить значение искомой функции ДУ в последней точке x = 1.0
 		double getY1() {
 			return *prev(m_y.end());
 		}
 
+		//очистка таблицы
 		void clear() {
 			m_x.clear();
 			m_y.clear();
@@ -144,17 +148,22 @@ public:
 		double Z = m_Z0;
 		m_solveTable->add(x, Y, Z);
 		
+		//поиск решения всегда на отрезке [0, 1]
 		while (x + h <= 1.0) {
 			double nextY1;
 			double nextZ1;
 			calcNext(x, h, Y, Z, nextY1, nextZ1);
+
+			//используем автоподбор шага h
 			double nextY3;
 			double nextZ3;
 			while(true) {
+				//попробуем уточнить, сделав вычисления в промежуточной точке
 				double nextY2;
 				double nextZ2;
 				calcNext(x, h / 2.0, Y, Z, nextY2, nextZ2);
 				calcNext(x + h / 2.0, h / 2.0, nextY2, nextZ2, nextY3, nextZ3);
+				//если достигнута минимально нужная погрешность
 				if (pow(nextY1 - nextY3, 2) + pow(nextZ1 - nextZ3, 2) < m_eps * m_eps) {
 					break;
 				}
@@ -168,13 +177,14 @@ public:
 			x += h;
 			m_solveTable->add(x, Y, Z);
 
+			//вычисляем максимальную погрешность на всей области решения
 			double error = abs(m_Ypr->func(x) - Y);
 			m_solveTable->m_maxErr = max(m_solveTable->m_maxErr, error);
 		}
 	}
 
 private:
-
+	//вычисление значения функции в следующей точки
 	void calcNext(double x, double h, double Y, double Z, double& nextY, double& nextZ) {
 		auto f = [&](double x, double Y, double Z) {
 			return -m_diffEq->m_Ax.func(x) * Z +
@@ -196,6 +206,7 @@ private:
 	}
 };
 
+//Метод стрельб
 class ShootingMethod
 {
 	DiffEq* m_diffEq;
@@ -217,15 +228,16 @@ public:
 		double A = m_alpha1;
 		double B = m_alpha2;
 
-		//A
+		//решение для левого конца A
 		DiffEqSolver diffEqSolverA(m_diffEq, m_Y0, A, m_solveTable, m_Ypr);
 		diffEqSolverA.solve();
 		m_consoleTable->printTableRow(itr++, { A, m_solveTable->getY1(), abs(m_Y1 - m_solveTable->getY1()) });
-		//B
+		//решение для правого конца B
 		DiffEqSolver diffEqSolverB(m_diffEq, m_Y0, B, m_solveTable, m_Ypr);
 		diffEqSolverB.solve();
 		m_consoleTable->printTableRow(itr++, { B, m_solveTable->getY1(), abs(m_Y1 - m_solveTable->getY1()) });
 
+		//поиск начального значения для Z(0) методом половинного деления на отрезке [A, B], чтобы удовлетворить Y(1) = Y_1
 		while (B - A >= m_eps) {
 			auto Z0 = (A + B) / 2.0;
 			m_solveTable->clear();
@@ -239,11 +251,205 @@ public:
 	}
 };
 
+
+
+
+
+
+
+//2 ЧАСТЬ
+int Variant = 0;
+# define M_PI 3.14159265358979323846
+
+double f_(double t, double x) {
+	return 0.1 * Variant * sin(M_PI * x) + 0.1 * 0.2 * M_PI * M_PI * t * Variant * sin(M_PI * x);
+}
+double u(double t, double x) {
+	return x + 0.1 * t * Variant * sin(M_PI * x);
+}
+double phi(double x) {
+	return x;
+}
+
+//Тау для явной схемы
+double tnExpl(double n, double i) { return (1. / n) * (1. / n) / (4. * 0.2) * i; }
+
+//Тау для неявной схемы
+double tnImpl(double n, double i) { return i * (1. / n); }
+
+//Явная схема
+vector<double> ExplicitScheme(double chi, double a, double b, int n, int maxi)
+{
+	vector <double> un(n + 1);
+	auto h = 1.0 / n;
+	auto tau = h * h / (4 * chi);
+	for (auto j = 0; j < un.size(); j++)
+	{
+		un[j] = phi(j * h);
+	}
+
+	auto unnew = un;
+	for (auto i = 0; i < maxi; i++)
+	{
+		for (auto j = 1; j < un.size() - 1; j++)
+			unnew[j] = un[j] + tau * (chi * (un[j + 1] - 2 * un[j] + un[j - 1]) / (h * h) + f_(tau * i, j * h));
+		un = unnew;
+	}
+	return un;
+}
+
+//Текущая погрешнсть 
+static double CurDelta(vector<double> layer, double i, double chi, bool isExplicit)
+{
+	auto n = layer.size() - 1;
+	auto h = 1.0 / n;
+	auto tau = isExplicit ? h * h / (4 * chi) : h;
+	double max = 0;
+	for (int j = 0; j <= n; j++)
+	{
+		if (abs(u(tau * i, j * h) - layer[j]) > max)
+			max = abs(u(tau * i, j * h) - layer[j]);
+	}
+	return max;
+}
+
+//Решение методом прогонки
+vector <double> Solve(vector<vector<double>> matrix, vector<double> rightPart)
+{
+	auto n = matrix[0].size();
+	vector <double> alpha(n), betta(n);
+	alpha[1] = -matrix[0][1] / matrix[0][0];
+	betta[1] = rightPart[0] / matrix[0][0];
+
+	for (int i = 1; i < n - 1; i++)
+	{
+		alpha[i + 1] = -matrix[i][i + 1] / (matrix[i][i] + matrix[i][i - 1] * alpha[i]);
+		betta[i + 1] = (rightPart[i] - matrix[i][i - 1] * betta[i]) / (matrix[i][i] + matrix[i][i - 1] * alpha[i]);
+	}
+
+	vector<double> x(n);
+	x[n - 1] = (rightPart[n - 1] - matrix[n - 1][n - 2] * betta[n - 1]) / (matrix[n - 1][n - 1] + matrix[n - 1][n - 2] * alpha[n - 1]);
+	for (int i = n - 2; i >= 0; i--)
+		x[i] = alpha[i + 1] * x[i + 1] + betta[i + 1];
+	return x;
+}
+
+//Неявная схема
+vector<double> ImplicitScheme(double chi, double a, double b, int n, int maxi)
+{
+	auto h = 1.0 / n;
+	auto tau = h;
+	auto d = (tau * chi) / (h * h);
+
+	vector <double> g(n - 1);
+	vector<vector<double>> matrix(n - 1, g);
+	for (int i = 0; i < matrix[0].size(); i++)
+	{
+		if (i - 1 >= 0)
+			matrix[i][i - 1] = -d;
+		matrix[i][i] = 1 + 2 * d;
+		if (i + 1 < matrix[1].size())
+			matrix[i][i + 1] = -d;
+	}
+
+	vector <double> un(n + 1);
+	for (int j = 0; j < un.size(); j++)
+	{
+		un[j] = phi(j * h);
+	}
+	un[0] = a;
+	un[un.size() - 1] = b;
+
+	vector <double> rightPart(un.size() - 2);
+	for (int i = 0; i < maxi; i++)
+	{
+		for (int j = 0; j < rightPart.size(); j++)
+			rightPart[j] = un[j + 1] + tau * f_(tau * (i + 1), h * (j + 1));
+		rightPart[0] += d * a;
+		rightPart[rightPart.size() - 1] += d * b;
+		rightPart = Solve(matrix, rightPart);
+		for (int j = 0; j < rightPart.size(); j++)
+			un[j + 1] = rightPart[j];
+	}
+	return un;
+}
+
+
+//Метод конечных разностей
+void FiniteDifferenceMethod()
+{
+	double chi(0.2), a(0.), b(1.), Del_T(0);
+	vector <double > currentLayer, firstLayer;
+
+	cout << "\nЯвная схема\n";
+
+	for (int n = 8; n <= 32; n *= 2)
+	{
+		cout << "\nN = " << n << endl << endl;
+		cout << setw(10) << "t" << setw(26) << "delta" << setw(4) << "x:\n";
+		Del_T = 0;
+		bool last = false;
+		for (int i = 0; round(tnExpl(n, i) * 1000.) / 1000. <= 1.001; i++)
+		{
+			double t = tnExpl(n, i);
+			currentLayer = ExplicitScheme(chi, a, b, n, i);
+			if (i == 0) firstLayer = currentLayer;
+			auto currentDelta = CurDelta(currentLayer, i, chi, true);
+
+			// Output
+			cout << setw(7) << setprecision(3) << fixed << t << "|" << setw(22) << setprecision(18);
+			if (currentDelta < 0.0001)  cout << setprecision(14) << scientific << currentDelta << setw(4) << "| ";
+			else cout << fixed << currentDelta << setw(4) << "| ";
+			for (auto i : currentLayer)
+				cout << setw(9) << setprecision(5) << fixed << i << "|";
+			cout << endl;
+
+			// maxDelta
+			if (currentDelta > Del_T)
+				Del_T = currentDelta;
+			if (round(t * 1000.) >= 1000) break;
+		}
+
+		cout << setprecision(15) << fixed << "\nDel_T: " << Del_T << endl << endl;
+	}
+
+	cout << "\nНеявная схемаА\n";
+
+	for (int n = 8; n <= 32; n *= 2)
+	{
+		cout << "\nN = " << n << endl << endl;
+		cout << setw(10) << "t" << setw(26) << "delta" << setw(4) << "x:\n";
+
+		Del_T = 0;
+		for (int i = 0; tnImpl(n, i) <= 1; i++)
+		{
+			double t = tnImpl(n, i);
+			currentLayer = ImplicitScheme(chi, a, b, n, i);
+			if (i == 0) firstLayer = currentLayer;
+			auto currentDelta = CurDelta(currentLayer, i, chi, false);
+
+			// Output
+			cout << setw(7) << setprecision(3) << fixed << t << "|" << setw(22) << setprecision(18);
+			if (currentDelta < 0.0001)  cout << setprecision(14) << scientific << currentDelta << setw(4) << "| ";
+			else cout << fixed << currentDelta << setw(4) << "| ";
+			for (auto i : currentLayer)
+				cout << setw(9) << setprecision(5) << fixed << i << "|";
+			cout << endl;
+
+			// MaxDelta
+			if (currentDelta > Del_T)
+				Del_T = currentDelta;
+		}
+
+		cout << setprecision(15) << fixed << "\nDel_T: " << Del_T;
+	}
+}
+
 int main()
 {
 	system("chcp 1251");
 	
-	int Variant = 25;
+	Variant = 25;
 	Function Ax([](double x) { return 50.0 * (x + 1.0); });
 	Function Bx([](double x) { return x * x + 2.0; });
 	Function Cx([](double x) { return x + 1.0; });
@@ -275,4 +481,7 @@ int main()
 		auto ypr = Ypr.func(x);
 		consoleTable2.printTableRow({ x, solveTable.m_y[i], ypr, solveTable.m_z[i], abs(solveTable.m_y[i] - ypr) });
 	}
+
+	printf("\nМетод конечных разностей\n");
+	FiniteDifferenceMethod();
 }
