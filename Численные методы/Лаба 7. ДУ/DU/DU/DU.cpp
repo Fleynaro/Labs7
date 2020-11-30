@@ -47,7 +47,9 @@ public:
 		auto it = m_precisions.begin();
 		for (const auto& value : values)
 		{
-			cout << setw(*it * 2) << setprecision(*it) << value << "|";
+			if (value != 0.0 && abs(value) < 0.0001)
+				cout << scientific << setprecision(15); else cout << fixed << setprecision(*it);
+			cout << setw(*it * 2) << value << "|";
 			it++;
 		}
 		cout << "\n";
@@ -260,9 +262,10 @@ public:
 //2 ЧАСТЬ
 int Variant = 0;
 # define M_PI 3.14159265358979323846
+double chi = 0.2;
 
 double f_(double t, double x) {
-	return 0.1 * Variant * sin(M_PI * x) + 0.1 * 0.2 * M_PI * M_PI * t * Variant * sin(M_PI * x);
+	return 0.1 * Variant * sin(M_PI * x) + 0.1 * chi * M_PI * M_PI * t * Variant * sin(M_PI * x);
 }
 double u(double t, double x) {
 	return x + 0.1 * t * Variant * sin(M_PI * x);
@@ -378,10 +381,10 @@ vector<double> ImplicitScheme(double chi, double a, double b, int n, int maxi)
 //Метод конечных разностей
 void FiniteDifferenceMethod()
 {
-	double chi(0.2), a(0.), b(1.), Del_T(0);
+	double a(0.), b(1.), Del_T(0);
 	vector <double > currentLayer, firstLayer;
 
-	cout << "\nЯвная схема\n";
+	cout << "\nxI = 0.20\nМетод конечных разностей (явная схема)";
 
 	for (int n = 8; n <= 32; n *= 2)
 	{
@@ -389,7 +392,7 @@ void FiniteDifferenceMethod()
 		cout << setw(10) << "t" << setw(26) << "delta" << setw(4) << "x:\n";
 		Del_T = 0;
 		bool last = false;
-		for (int i = 0; round(tnExpl(n, i) * 1000.) / 1000. <= 1.001; i++)
+		for (int i = 1; round(tnExpl(n, i) * 1000.) / 1000. <= 1.001; i++)
 		{
 			double t = tnExpl(n, i);
 			currentLayer = ExplicitScheme(chi, a, b, n, i);
@@ -413,7 +416,7 @@ void FiniteDifferenceMethod()
 		cout << setprecision(15) << fixed << "\nDel_T: " << Del_T << endl << endl;
 	}
 
-	cout << "\nНеявная схемаА\n";
+	cout << "\nМетод конечных разностей (неявная схема)";
 
 	for (int n = 8; n <= 32; n *= 2)
 	{
@@ -421,7 +424,7 @@ void FiniteDifferenceMethod()
 		cout << setw(10) << "t" << setw(26) << "delta" << setw(4) << "x:\n";
 
 		Del_T = 0;
-		for (int i = 0; tnImpl(n, i) <= 1; i++)
+		for (int i = 1; tnImpl(n, i) <= 1; i++)
 		{
 			double t = tnImpl(n, i);
 			currentLayer = ImplicitScheme(chi, a, b, n, i);
@@ -449,10 +452,19 @@ int main()
 {
 	system("chcp 1251");
 	
-	Variant = 25;
+	/*Variant = 25;
+
 	Function Ax([](double x) { return 50.0 * (x + 1.0); });
 	Function Bx([](double x) { return x * x + 2.0; });
+	Function Cx([](double x) { return x + 1.0; });*/
+
+	Variant = 21;
+
+	Function Ax([](double x) { return 40.0 * (x + 1.0); });
+	Function Bx([](double x) { return -x * x + 2.0; });
 	Function Cx([](double x) { return x + 1.0; });
+
+	//1 задача
 	Function Ypr(
 		[&](double x) { return 1 + x + 10 * log(Variant + 1.0) * pow(x, 3) * pow((1 - x), 3); },
 		[&](double x, int n) {
@@ -482,6 +494,7 @@ int main()
 		consoleTable2.printTableRow({ x, solveTable.m_y[i], ypr, solveTable.m_z[i], abs(solveTable.m_y[i] - ypr) });
 	}
 
-	printf("\nМетод конечных разностей\n");
+	//2 задача
+	chi = 0.2;
 	FiniteDifferenceMethod();
 }
